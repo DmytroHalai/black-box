@@ -1,5 +1,23 @@
 package org.example.app_logic.api;
 
 public enum Result {
-    ONGOING, X_WINS, O_WINS, DRAW
+    /**
+     * Гра триває, переможця ще немає.
+     */
+    ONGOING,
+
+    /**
+     * Переміг гравець X.
+     */
+    X_WINS,
+
+    /**
+     * Переміг гравець O.
+     */
+    O_WINS,
+
+    /**
+     * Гра завершилася нічиєю — дошка повна, але жодна лінія не заповнена повністю.
+     */
+    DRAW
 }
