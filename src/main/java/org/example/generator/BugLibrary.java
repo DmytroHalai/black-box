@@ -1,9 +1,9 @@
 package org.example.generator;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.BooleanLiteralExpr;
-import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.SwitchEntry;
 
@@ -62,5 +62,35 @@ public class BugLibrary {
     public static void bugGetWinnerDefaultX(MethodDeclaration m) {
         m.setBody(new BlockStmt().
                 addStatement(new ReturnStmt("Optional.ofNullable(result == Result.X_WINS ? Player.X : null)")));
+    }
+
+    // ========== Bugs for playTurn ==========
+
+    public static void bugPlayTurnSkipWinCheck(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("hasWin")));
+    }
+
+    public static void bugPlayTurnAlwaysDraw(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.addStatement(
+                new ExpressionStmt(new AssignExpr(new NameExpr("result"),
+                        new FieldAccessExpr(new NameExpr("Result"), "DRAW"),
+                        AssignExpr.Operator.ASSIGN))));
+    }
+
+    public static void bugPlayTurnNoTurnSwitch(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().
+                removeIf(stmt -> stmt.toString().contains("turn.other")));
+    }
+
+    public static void bugPlayTurnInvertTurnAssignment(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.addStatement(new ExpressionStmt(new AssignExpr(
+                new NameExpr("turn"),
+                new MethodCallExpr("turn.other"),
+                AssignExpr.Operator.ASSIGN))));
+    }
+
+    public static void bugPlayTurnSkipAssignment(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().
+                removeIf(stmt -> stmt.toString().contains("board[i]")));
     }
 }
