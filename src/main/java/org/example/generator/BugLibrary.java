@@ -146,4 +146,26 @@ public class BugLibrary {
             body.addStatement(new ExpressionStmt(new AssignExpr(new ArrayAccessExpr(new NameExpr("board"), new IntegerLiteralExpr(0)), new FieldAccessExpr(new NameExpr("Cell"), "EMPTY"), AssignExpr.Operator.ASSIGN)));
         });
     }
+
+    // ========== Bugs for isBoardFull ==========
+
+    public static void bugIsBoardFullAlwaysTrue(MethodDeclaration m) {
+        m.setBody(new BlockStmt().addStatement(new ReturnStmt("true")));
+    }
+
+    public static void bugIsBoardFullAlwaysFalse(MethodDeclaration m) {
+        m.setBody(new BlockStmt().addStatement(new ReturnStmt("false")));
+    }
+
+    public static void bugIsBoardFullStopEarly(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("return false")));
+    }
+
+    public static void bugIsBoardFullCheckOnlyOne(MethodDeclaration m) {
+        m.setBody(new BlockStmt().addStatement(new ReturnStmt("board[0] != Cell.EMPTY")));
+    }
+
+    public static void bugIsBoardFullCheckLastOnly(MethodDeclaration m) {
+        m.setBody(new BlockStmt().addStatement(new ReturnStmt("board[8] != Cell.EMPTY")));
+    }
 }
