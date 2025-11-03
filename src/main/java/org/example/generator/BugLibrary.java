@@ -93,4 +93,33 @@ public class BugLibrary {
         m.getBody().ifPresent(body -> body.getStatements().
                 removeIf(stmt -> stmt.toString().contains("board[i]")));
     }
+
+    // ========== Bugs for validateMove ==========
+
+
+    public static void bugValidateMoveAlwaysValid(MethodDeclaration m) {
+        m.setBody(new BlockStmt());
+    }
+
+
+    public static void bugValidateMoveAcceptWrongPlayer(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Wrong turn")));
+    }
+
+
+    public static void bugValidateMoveSkipTerminal(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Game is over")));
+    }
+
+
+    public static void bugValidateMoveSkipRangeCheck(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Out of board")));
+    }
+
+
+    public static void bugValidateMoveSkipCellOccupied(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Cell occupied")));
+    }
+
+
 }
