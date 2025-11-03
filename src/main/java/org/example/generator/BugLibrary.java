@@ -96,30 +96,54 @@ public class BugLibrary {
 
     // ========== Bugs for validateMove ==========
 
-
     public static void bugValidateMoveAlwaysValid(MethodDeclaration m) {
         m.setBody(new BlockStmt());
     }
-
 
     public static void bugValidateMoveAcceptWrongPlayer(MethodDeclaration m) {
         m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Wrong turn")));
     }
 
-
     public static void bugValidateMoveSkipTerminal(MethodDeclaration m) {
         m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Game is over")));
     }
-
 
     public static void bugValidateMoveSkipRangeCheck(MethodDeclaration m) {
         m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Out of board")));
     }
 
-
     public static void bugValidateMoveSkipCellOccupied(MethodDeclaration m) {
         m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Cell occupied")));
     }
 
+    // ========== Bugs for reset ==========
 
+    public static void bugResetSkipBoardClear(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Arrays.fill")));
+    }
+
+    public static void bugResetWrongTurn(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.addStatement(new ExpressionStmt(new AssignExpr(
+                new NameExpr("turn"),
+                new FieldAccessExpr(new NameExpr("Player"), "O"),
+                AssignExpr.Operator.ASSIGN))));
+    }
+
+    public static void bugResetAlwaysTerminal(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.addStatement(new ExpressionStmt(new AssignExpr(
+                new NameExpr("result"),
+                new FieldAccessExpr(new NameExpr("Result"), "X_WINS"),
+                AssignExpr.Operator.ASSIGN))));
+    }
+
+    public static void bugResetNoResultReset(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> body.getStatements().removeIf(stmt -> stmt.toString().contains("Result.ONGOING")));
+    }
+
+    public static void bugResetBoardClearOnlyOne(MethodDeclaration m) {
+        m.getBody().ifPresent(body -> {
+            body.getStatements().removeIf(stmt -> stmt.toString().contains("Arrays.fill"));
+            body.addStatement(new ExpressionStmt(new AssignExpr(new ArrayAccessExpr(new NameExpr("board"), new IntegerLiteralExpr(0)), new FieldAccessExpr(new NameExpr("Cell"), "EMPTY"), AssignExpr.Operator.ASSIGN)));
+        });
+    }
 }
