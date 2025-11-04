@@ -5,6 +5,7 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 
 public class BugLibrary {
+
     // ========== Bugs for threeInRow ==========
 
     public static void bugThreeInRowAlwaysTrue(MethodDeclaration m) {
@@ -75,18 +76,21 @@ public class BugLibrary {
         bugThreeInRowChangeEqualIndex(m, "j", "k", "k", false);
     }
 
-    public static void bugThreeInRowReturnFirstOR(MethodDeclaration m) {
+    public static void bugThreeInRowReturnSecondOR(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(ReturnStmt.class).forEach(ret -> {
             if (ret.getExpression().isPresent()) {
-                BinaryExpr expr = ret.getExpression().get().asBinaryExpr();
-                expr.setOperator(BinaryExpr.Operator.OR);
+                var expr = ret.getExpression().get();
+                var binaries = expr.findAll(BinaryExpr.class);
+                System.out.println(binaries.getFirst());
+                BinaryExpr second = binaries.getFirst().asBinaryExpr();
+                second.setOperator(BinaryExpr.Operator.OR);
             }
         });
     }
 
-    public static void bugThreeInRowReturnSecondOR(MethodDeclaration m) {
+    public static void bugThreeInRowReturnFirstOR(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(ReturnStmt.class).forEach(ret -> {
@@ -116,15 +120,17 @@ public class BugLibrary {
     public static void bugThreeInRowReturnNotSecond(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(ReturnStmt.class).forEach(ret -> {
-            if (ret.getExpression().isPresent()) {
-                Expression expr = ret.getExpression().get();
-                BinaryExpr binary = expr.asBinaryExpr();
-                Expression right = binary.getRight();
-                UnaryExpr negated = new UnaryExpr(right.clone(), UnaryExpr.Operator.LOGICAL_COMPLEMENT);
-                binary.setLeft(negated);
+        body.findAll(ReturnStmt.class).forEach(ret -> ret.getExpression().ifPresent(expr -> {
+            if (expr.isBinaryExpr()) {
+                BinaryExpr outer = expr.asBinaryExpr();
+                Expression left = outer.getLeft();
+                if (left.isBinaryExpr()) {
+                    BinaryExpr inner = left.asBinaryExpr();
+                    Expression rightInner = inner.getRight();
+                    inner.setRight(new UnaryExpr(rightInner.clone(), UnaryExpr.Operator.LOGICAL_COMPLEMENT));
+                }
             }
-        });
+        }));
     }
 
     public static void bugThreeInRowReturnNotThird(MethodDeclaration m) {
@@ -135,10 +141,8 @@ public class BugLibrary {
                 Expression expr = ret.getExpression().get();
                 BinaryExpr binary = expr.asBinaryExpr();
                 Expression right = binary.getRight();
-                BinaryExpr rightBinary = right.asBinaryExpr();
-                Expression third = rightBinary.getRight();
-                UnaryExpr negated = new UnaryExpr(third.clone(), UnaryExpr.Operator.LOGICAL_COMPLEMENT);
-                binary.setLeft(negated);
+                UnaryExpr negated = new UnaryExpr(right.clone(), UnaryExpr.Operator.LOGICAL_COMPLEMENT);
+                binary.setRight(negated);
             }
         });
     }
@@ -155,15 +159,14 @@ public class BugLibrary {
 
     public static void bugGetWinnerFlipWinners(MethodDeclaration m) {
         m.getBody().ifPresent(body -> body.findAll(SwitchEntry.class)
-                .forEach(entry -> entry.getStatements().forEach(stmt -> {
-                            String s = stmt.toString();
-                            if (s.contains("Player.X")) {
-                                stmt.replace(new ReturnStmt("Optional.of(Player.O)"));
-                            } else if (s.contains("Player.O")) {
-                                stmt.replace(new ReturnStmt("Optional.of(Player.X)"));
-                            }
-                        })
-                )
+            .forEach(entry -> entry.getStatements().forEach(stmt -> {
+                String s = stmt.toString();
+                if (s.contains("Player.X")) {
+                    stmt.replace(new ReturnStmt("Optional.of(Player.O)"));
+                } else if (s.contains("Player.O")) {
+                    stmt.replace(new ReturnStmt("Optional.of(Player.X)"));
+                }
+            }))
         );
     }
 
@@ -256,36 +259,15 @@ public class BugLibrary {
     }
 
     public static void bugPlayTurnInvertResultDrawToOngoing(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("result") &&
-                    assign.getValue().toString().equals("Result.DRAW")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), "ONGOING"));
-            }
-        });
+        bugPlayTurnChangeResultState(m, "ONGOING");
     }
 
     public static void bugPlayTurnInvertResultDrawToXWins(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("result") &&
-                    assign.getValue().toString().equals("Result.DRAW")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), "X_WINS"));
-            }
-        });
+        bugPlayTurnChangeResultState(m, "X_WINS");
     }
 
     public static void bugPlayTurnInvertResultDrawToOWins(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("result") &&
-                    assign.getValue().toString().equals("Result.DRAW")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), "O_WINS"));
-            }
-        });
+        bugPlayTurnChangeResultState(m, "O_WINS");
     }
 
     public static void bugPlayTurnNoTurnSwitch(MethodDeclaration m) {
@@ -294,27 +276,12 @@ public class BugLibrary {
     }
 
     public static void bugPlayTurnTurnToX(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("turn") &&
-                    assign.getValue().toString().equals("turn.other()")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Player"), "X"));
-            }
-        });
+        bugPlayTurnChangeTurnToPlayer(m, "X");
     }
 
     public static void bugPlayTurnTurnToY(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("turn") &&
-                    assign.getValue().toString().equals("turn.other()")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Player"), "Y"));
-            }
-        });
+        bugPlayTurnChangeTurnToPlayer(m, "O");
     }
-
 
     public static void playTurnIdxWithXX(MethodDeclaration m) {
         bugIdxWithXX(m);
@@ -335,63 +302,24 @@ public class BugLibrary {
     }
 
     public static void bugValidateMoveEqualsTurn(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(BinaryExpr.class).forEach(expr -> {
-            if (expr.getOperator() == BinaryExpr.Operator.NOT_EQUALS &&
-                    expr.getLeft().toString().equals("move.player()") &&
-                    expr.getRight().toString().equals("turn")) {
-                expr.setOperator(BinaryExpr.Operator.EQUALS);
-            }
-        });
+        bugValidateMoveChangeComparisonOperator(m, "move.player()", "turn", BinaryExpr.Operator.EQUALS);
     }
 
     public static void bugValidateMoveXMoreThan0(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(BinaryExpr.class).forEach(expr -> {
-            if (expr.getOperator() == BinaryExpr.Operator.LESS &&
-                    expr.getLeft().toString().equals("move.x()") &&
-                    expr.getRight().toString().equals("0")) {
-                expr.setOperator(BinaryExpr.Operator.GREATER);
-            }
-        });
+        bugValidateMoveChangeComparisonOperator(m, "move.x()", "0", BinaryExpr.Operator.GREATER);
     }
 
     public static void bugValidateMoveXLessThan2(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(BinaryExpr.class).forEach(expr -> {
-            if (expr.getOperator() == BinaryExpr.Operator.LESS &&
-                    expr.getLeft().toString().equals("move.x()") &&
-                    expr.getRight().toString().equals("2")) {
-                expr.setOperator(BinaryExpr.Operator.LESS);
-            }
-        });
+        bugValidateMoveChangeComparisonOperator(m, "move.x()", "2", BinaryExpr.Operator.LESS);
     }
 
+
     public static void bugValidateMoveYMoreThan0(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(BinaryExpr.class).forEach(expr -> {
-            if (expr.getOperator() == BinaryExpr.Operator.LESS &&
-                    expr.getLeft().toString().equals("move.y()") &&
-                    expr.getRight().toString().equals("0")) {
-                expr.setOperator(BinaryExpr.Operator.GREATER);
-            }
-        });
+        bugValidateMoveChangeComparisonOperator(m, "move.y()", "0", BinaryExpr.Operator.GREATER);
     }
 
     public static void bugValidateMoveYLessThan2(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(BinaryExpr.class).forEach(expr -> {
-            if (expr.getOperator() == BinaryExpr.Operator.LESS &&
-                    expr.getLeft().toString().equals("move.y()") &&
-                    expr.getRight().toString().equals("2")) {
-                expr.setOperator(BinaryExpr.Operator.LESS);
-            }
-        });
+        bugValidateMoveChangeComparisonOperator(m, "move.y()", "2", BinaryExpr.Operator.LESS);
     }
 
     public static void bugValidateMoveInvertFirstAnd(MethodDeclaration m) {
@@ -412,45 +340,11 @@ public class BugLibrary {
     }
 
     public static void bugValidateMoveInvertSecondAnd(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(IfStmt.class).forEach(ifStmt -> {
-            var condition = ifStmt.getCondition();
-            if (condition.isBinaryExpr()) {
-                var binaries = condition.findAll(BinaryExpr.class);
-                int orCount = 0;
-                for (BinaryExpr expr : binaries) {
-                    if (expr.getOperator() == BinaryExpr.Operator.OR) {
-                        orCount++;
-                        if (orCount == 2) {
-                            expr.setOperator(BinaryExpr.Operator.AND);
-                            break;
-                        }
-                    }
-                }
-            }
-        });
+        bugValidateMoveInvertLogicalOperator(m, (short) 2);
     }
 
     public static void bugValidateMoveInvertThirdAnd(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(IfStmt.class).forEach(ifStmt -> {
-            var condition = ifStmt.getCondition();
-            if (condition.isBinaryExpr()) {
-                var binaries = condition.findAll(BinaryExpr.class);
-                int orCount = 0;
-                for (BinaryExpr expr : binaries) {
-                    if (expr.getOperator() == BinaryExpr.Operator.OR) {
-                        orCount++;
-                        if (orCount == 3) {
-                            expr.setOperator(BinaryExpr.Operator.AND);
-                            break;
-                        }
-                    }
-                }
-            }
-        });
+        bugValidateMoveInvertLogicalOperator(m, (short) 3);
     }
 
     public static void bugValidateMoveBoardEqualsEmpty(MethodDeclaration m) {
@@ -781,6 +675,61 @@ public class BugLibrary {
     }
 
     // ========== Helper methods ==========
+
+    private static void bugPlayTurnChangeResultState(MethodDeclaration m, String resultState) {
+        BlockStmt body = m.getBody().orElse(null);
+        if (body == null) return;
+        body.findAll(AssignExpr.class).forEach(assign -> {
+            if (assign.getTarget().toString().equals("result") &&
+                    assign.getValue().toString().equals("Result.DRAW")) {
+                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), resultState));
+            }
+        });
+    }
+
+    private static void bugPlayTurnChangeTurnToPlayer(MethodDeclaration m, String changedPlayer) {
+        BlockStmt body = m.getBody().orElse(null);
+        if (body == null) return;
+        body.findAll(AssignExpr.class).forEach(assign -> {
+            if (assign.getTarget().toString().equals("turn") &&
+                    assign.getValue().toString().equals("turn.other()")) {
+                assign.setValue(new FieldAccessExpr(new NameExpr("Player"), changedPlayer));
+            }
+        });
+    }
+
+    private static void bugValidateMoveChangeComparisonOperator(MethodDeclaration m, String methodName, String compareValue, BinaryExpr.Operator newOperator) {
+        BlockStmt body = m.getBody().orElse(null);
+        if (body == null) return;
+        body.findAll(BinaryExpr.class).forEach(expr -> {
+            if (expr.getOperator() == BinaryExpr.Operator.LESS &&
+                    expr.getLeft().toString().equals(methodName) &&
+                    expr.getRight().toString().equals(compareValue)) {
+                expr.setOperator(newOperator);
+            }
+        });
+    }
+
+    private static void bugValidateMoveInvertLogicalOperator(MethodDeclaration m, short number) {
+        BlockStmt body = m.getBody().orElse(null);
+        if (body == null) return;
+        body.findAll(IfStmt.class).forEach(ifStmt -> {
+            var condition = ifStmt.getCondition();
+            if (condition.isBinaryExpr()) {
+                var binaries = condition.findAll(BinaryExpr.class);
+                int orCount = 0;
+                for (BinaryExpr expr : binaries) {
+                    if (expr.getOperator() == BinaryExpr.Operator.OR) {
+                        orCount++;
+                        if (orCount == number) {
+                            expr.setOperator(BinaryExpr.Operator.AND);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     private static void bugThreeInRowChangeEqualIndex(MethodDeclaration m, String valueLeft, String valueRight, String newValue, boolean isRight) {
         BlockStmt body = m.getBody().orElse(null);
