@@ -191,7 +191,6 @@ public class BugLibrary {
             if (expr.getOperator() == BinaryExpr.Operator.EQUALS &&
                     expr.getLeft().toString().equals("turn") &&
                     expr.getRight().toString().equals("Player.X")) {
-
                 expr.setOperator(BinaryExpr.Operator.NOT_EQUALS);
             }
         });
@@ -212,11 +211,15 @@ public class BugLibrary {
     public static void bugPlayTurnIfTurnEqualsXCellInvert(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
+
         body.findAll(ConditionalExpr.class).forEach(cond -> {
-            if (cond.getThenExpr().toString().equals("Cell.X") &&
-                    cond.getElseExpr().toString().equals("Cell.O")) {
-                cond.setThenExpr(new FieldAccessExpr(new FieldAccessExpr(null, "Cell"), "O"));
-                cond.setElseExpr(new FieldAccessExpr(new FieldAccessExpr(null, "Cell"), "X"));
+            if (cond.getThenExpr().isFieldAccessExpr() && cond.getElseExpr().isFieldAccessExpr()) {
+                FieldAccessExpr thenExpr = cond.getThenExpr().asFieldAccessExpr();
+                FieldAccessExpr elseExpr = cond.getElseExpr().asFieldAccessExpr();
+                if (thenExpr.toString().equals("Cell.X") && elseExpr.toString().equals("Cell.O")) {
+                    cond.setThenExpr(new FieldAccessExpr(new NameExpr("Cell"), "O"));
+                    cond.setElseExpr(new FieldAccessExpr(new NameExpr("Cell"), "X"));
+                }
             }
         });
     }
@@ -229,11 +232,14 @@ public class BugLibrary {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(ConditionalExpr.class).forEach(cond -> {
-            String thenPart = cond.getThenExpr().toString();
-            String elsePart = cond.getElseExpr().toString();
-            if (thenPart.equals("Result.X_WINS") && elsePart.equals("Result.O_WINS")) {
-                cond.setThenExpr(new FieldAccessExpr(new FieldAccessExpr(null, "Result"), "O_WINS"));
-                cond.setElseExpr(new FieldAccessExpr(new FieldAccessExpr(null, "Result"), "X_WINS"));
+            if (cond.getThenExpr().isFieldAccessExpr() && cond.getElseExpr().isFieldAccessExpr()) {
+                FieldAccessExpr thenExpr = cond.getThenExpr().asFieldAccessExpr();
+                FieldAccessExpr elseExpr = cond.getElseExpr().asFieldAccessExpr();
+                if (thenExpr.toString().equals("Result.X_WINS")
+                        && elseExpr.toString().equals("Result.O_WINS")) {
+                    cond.setThenExpr(new FieldAccessExpr(new NameExpr("Result"), "O_WINS"));
+                    cond.setElseExpr(new FieldAccessExpr(new NameExpr("Result"), "X_WINS"));
+                }
             }
         });
     }
@@ -275,19 +281,19 @@ public class BugLibrary {
                 removeIf(stmt -> stmt.toString().contains("turn.other")));
     }
 
-    public static void bugPlayTurnTurnToX(MethodDeclaration m) {
+    public static void bugPlayTurnToX(MethodDeclaration m) {
         bugPlayTurnChangeTurnToPlayer(m, "X");
     }
 
-    public static void bugPlayTurnTurnToY(MethodDeclaration m) {
+    public static void bugPlayTurnToO(MethodDeclaration m) {
         bugPlayTurnChangeTurnToPlayer(m, "O");
     }
 
-    public static void playTurnIdxWithXX(MethodDeclaration m) {
+    public static void bugPlayTurnIdxWithXX(MethodDeclaration m) {
         bugIdxWithXX(m);
     }
 
-    public static void playTurnbugIdxWithYY(MethodDeclaration m) {
+    public static void bugPlayTurnIdxWithYY(MethodDeclaration m) {
         bugIdxWithYY(m);
     }
 
@@ -797,25 +803,21 @@ public class BugLibrary {
     }
 
     private static void bugIdxWithXX(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-
-        body.findAll(MethodCallExpr.class).forEach(call -> {
-            if (call.getNameAsString().equals("idx")) {
-                FieldAccessExpr moveX = new FieldAccessExpr(new NameExpr("move"), "x");
-                call.setArgument(1, moveX);
-            }
-        });
+        bugIdx(m, "x()", 1);
     }
 
     private static void bugIdxWithYY(MethodDeclaration m) {
+        bugIdx(m, "y()", 0);
+    }
+
+    private static void bugIdx(MethodDeclaration m, String name, int i) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
 
         body.findAll(MethodCallExpr.class).forEach(call -> {
             if (call.getNameAsString().equals("idx")) {
-                FieldAccessExpr moveY = new FieldAccessExpr(new NameExpr("move"), "y");
-                call.setArgument(0, moveY);
+                FieldAccessExpr moveY = new FieldAccessExpr(new NameExpr("move"), name);
+                call.setArgument(i, moveY);
             }
         });
     }

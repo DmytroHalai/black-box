@@ -88,11 +88,11 @@ public final class Engine implements GameEngine {
         return turn;
     }
 
-        @Override//
-        public boolean isBoardFull() {
-            for (Cell c : board) if (c == Cell.EMPTY) return false;
-            return true;
-        }
+    @Override//
+    public boolean isBoardFull() {
+        for (Cell c : board) if (c == Cell.EMPTY) return false;
+        return true;
+    }
 
     @Override//
     public boolean hasWin() {
