@@ -85,7 +85,6 @@ public class BugLibrary {
             if (ret.getExpression().isPresent()) {
                 var expr = ret.getExpression().get();
                 var binaries = expr.findAll(BinaryExpr.class);
-                System.out.println(binaries.getFirst());
                 BinaryExpr second = binaries.getFirst().asBinaryExpr();
                 second.setOperator(BinaryExpr.Operator.OR);
             }
