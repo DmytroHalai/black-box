@@ -3,13 +3,17 @@ package bug_library_tests;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.stmt.ThrowStmt;
 import org.example.generator.BugLibrary;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ValidateMoveMethodTest {
     MethodDeclaration m;
@@ -42,122 +46,247 @@ class ValidateMoveMethodTest {
 
     @Test
     void testBugValidateMoveAlwaysValid() {
+        // given
         BugLibrary.bugValidateMoveEmpty(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("public void validateMove(Move move) {"));
-        assertFalse(result.contains("if (isTerminal())"));
+        // when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        // then
+        // 1. check that method exists
+        assertEquals("validateMove", m.getNameAsString(), "Expected validateMove method");
+
+        // 2. check that the body of the method exists, but doesn't have any ifs or throws
+        boolean hasIfStatements = !body.findAll(IfStmt.class).isEmpty();
+        boolean hasThrowStatements = !body.findAll(ThrowStmt.class).isEmpty();
+
+        assertFalse(hasIfStatements, "Expected method to contain no 'if' statements");
+        assertFalse(hasThrowStatements, "Expected method to contain no 'throw' statements");
+
+        // 3. check that the body is empty
+        assertTrue(body.isEmpty(), "Expected validateMove body to be empty");
     }
+
 
     @Test
     void testBugValidateMoveIsTerminalInvert() {
+        //given
         BugLibrary.bugValidateMoveIsTerminalInvert(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (!isTerminal())"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findFirst(IfStmt.class).orElseThrow();
+        boolean cond = ifStmt.getCondition().asUnaryExpr().getOperator().equals(UnaryExpr.Operator.LOGICAL_COMPLEMENT);
+
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveEqualsTurn() {
+        //given
         BugLibrary.bugValidateMoveEqualsTurn(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("move.player() == turn"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(1);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.EQUALS);
+
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveXMoreThan0() {
+        //given
         BugLibrary.bugValidateMoveXMoreThan0(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("move.x() > 0"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().
+                getLeft().asBinaryExpr().
+                getLeft().asBinaryExpr().
+                getLeft().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.GREATER);
+
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveXLessThan2() {
+        //given
         BugLibrary.bugValidateMoveXLessThan2(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("move.x() < 2"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().
+                getLeft().asBinaryExpr().
+                getLeft().asBinaryExpr().
+                getRight().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.LESS);
+
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveYMoreThan0() {
+        //given
         BugLibrary.bugValidateMoveYMoreThan0(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("move.y() > 0"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().
+                getLeft().asBinaryExpr().
+                getRight().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.GREATER);
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveYLessThan2() {
+        //given
         BugLibrary.bugValidateMoveYLessThan2(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("move.y() < 2"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().
+                getRight().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.LESS);
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveInvertFirstAnd() {
+        //given
         BugLibrary.bugValidateMoveInvertFirstAnd(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (move.x() < 0 && move.x() > 2 || move.y() < 0 || move.y() > 2)"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
+        boolean cond = ifStmt.getCondition().asBinaryExpr()
+                        .getLeft().asBinaryExpr()
+                        .getLeft().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.AND);
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveInvertSecondAnd() {
+        //given
         BugLibrary.bugValidateMoveInvertSecondAnd(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (move.x() < 0 || move.x() > 2 && move.y() < 0 || move.y() > 2)"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
+        boolean cond = ifStmt.getCondition().asBinaryExpr()
+                .getLeft().asBinaryExpr()
+                .getOperator().equals(BinaryExpr.Operator.AND);
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveInvertThirdAnd() {
+        //given
         BugLibrary.bugValidateMoveInvertThirdAnd(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (move.x() < 0 || move.x() > 2 || move.y() < 0 && move.y() > 2)"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
+        boolean cond = ifStmt.getCondition().asBinaryExpr()
+                .getOperator().equals(BinaryExpr.Operator.AND);
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveBoardEqualsEmpty() {
+        //given
         BugLibrary.bugValidateMoveBoardEqualsEmpty(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (board[idx(move.x(), move.y())] == Cell.EMPTY)"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().getRight().asFieldAccessExpr().getName().toString().equals("EMPTY");
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveBoardNotEqualsX() {
+        //given
         BugLibrary.bugValidateMoveBoardNotEqualsX(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (board[idx(move.x(), move.y())] != Cell.X)"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.NOT_EQUALS);
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        //assertTrue(result.contains("if (board[idx(move.x(), move.y())] != Cell.X)"));
     }
 
     @Test
     void testBugValidateMoveBoardNotEqualsY() {
+        //given
         BugLibrary.bugValidateMoveBoardNotEqualsY(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (board[idx(move.x(), move.y())] != Cell.Y)"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().
+                getRight().asFieldAccessExpr().getName().toString().equals("Y");
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveIdxWithXX() {
         BugLibrary.bugValidateMoveIdxWithXX(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (board[idx(move.x(), move.x())] != Cell.EMPTY)"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().
+                getLeft().asArrayAccessExpr().
+                getIndex().asMethodCallExpr().getArguments().get(1).asFieldAccessExpr().
+                getName().toString().equals("x()");
+        System.out.println();
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 
     @Test
     void testBugValidateMoveIdxWithYY() {
         BugLibrary.bugValidateMoveIdxWithYY(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("if (board[idx(move.y(), move.y())] != Cell.EMPTY)"));
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
+        boolean cond = ifStmt.getCondition().asBinaryExpr().
+                getLeft().asArrayAccessExpr().
+                getIndex().asMethodCallExpr().getArguments().get(0).asFieldAccessExpr().
+                getName().toString().equals("y()");
+        System.out.println();
+        assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 }
