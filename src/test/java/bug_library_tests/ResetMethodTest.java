@@ -95,13 +95,13 @@ class ResetMethodTest {
     @Test
     void testBugResetCellY() {
         // given
-        BugLibrary.bugResetCellY(m);
+        BugLibrary.bugResetCellO(m);
 
         // when
         BlockStmt body = m.getBody().orElseThrow();
 
         // then
-        assertArgChanged(body, "Cell.Y");
+        assertArgChanged(body, "Cell.O");
     }
 
     @Test
@@ -148,12 +148,12 @@ class ResetMethodTest {
     }
 
     @Test
-    void testBugResetResultToYWins() {
+    void testBugResetResultToOWins() {
         // given
-        BugLibrary.bugResetResultToYWins(m);
+        BugLibrary.bugResetResultToOWins(m);
 
         // then
-        assertHasAssignment(m, "Result.Y_WINS");
+        assertHasAssignment(m, "Result.O_WINS");
     }
 
     private static void assertHasAssignment(MethodDeclaration m, String expectedValue) {

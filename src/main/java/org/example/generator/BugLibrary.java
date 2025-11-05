@@ -164,9 +164,9 @@ public class BugLibrary {
             .forEach(entry -> entry.getStatements().forEach(stmt -> {
                 String s = stmt.toString();
                 if (s.contains("Player.X")) {
-                    stmt.replace(new ReturnStmt("Optional.of(Player.O)"));
+                    stmt.replace(new ExpressionStmt(new NameExpr("Optional.of(Player.O)")));
                 } else if (s.contains("Player.O")) {
-                    stmt.replace(new ReturnStmt("Optional.of(Player.X)"));
+                    stmt.replace(new ExpressionStmt(new NameExpr("Optional.of(Player.X)")));
                 }
             }))
         );
@@ -362,8 +362,8 @@ public class BugLibrary {
         bugEqualsCellX(m);
     }
 
-    public static void bugValidateMoveBoardNotEqualsY(MethodDeclaration m) {
-        bugEqualsCellY(m);
+    public static void bugValidateMoveBoardNotEqualsO(MethodDeclaration m) {
+        bugEqualsCellO(m);
     }
 
     public static void bugValidateMoveIdxWithXX(MethodDeclaration m) {
@@ -400,7 +400,7 @@ public class BugLibrary {
         });
     }
 
-    public static void bugResetCellY(MethodDeclaration m) {
+    public static void bugResetCellO(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(MethodCallExpr.class).forEach(call -> {
@@ -409,7 +409,7 @@ public class BugLibrary {
                     call.getScope().get().toString().equals("Arrays") &&
                     call.getArguments().size() == 2 &&
                     call.getArgument(1).toString().equals("Cell.EMPTY")) {
-                call.setArgument(1, new FieldAccessExpr(new NameExpr("Cell"), "Y"));
+                call.setArgument(1, new FieldAccessExpr(new NameExpr("Cell"), "O"));
             }
         });
     }
@@ -448,13 +448,13 @@ public class BugLibrary {
         });
     }
 
-    public static void bugResetResultToYWins(MethodDeclaration m) {
+    public static void bugResetResultToOWins(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(AssignExpr.class).forEach(assign -> {
             if (assign.getTarget().toString().equals("result") &&
                     assign.getValue().toString().equals("Result.ONGOING")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), "Y_WINS"));
+                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), "O_WINS"));
             }
         });
     }
@@ -489,8 +489,8 @@ public class BugLibrary {
         bugEqualsCellX(m);
     }
 
-    public static void bugIsBoardFullCEqualsY(MethodDeclaration m) {
-        bugEqualsCellY(m);
+    public static void bugIsBoardFullCEqualsO(MethodDeclaration m) {
+        bugEqualsCellO(m);
     }
 
 
@@ -587,8 +587,8 @@ public class BugLibrary {
         bugChangeResultEquality(m, "X_WINS");
     }
 
-    public static void bugIsTerminalResultNotEqualsYWins(MethodDeclaration m) {
-        bugChangeResultEquality(m, "Y_WINS");
+    public static void bugIsTerminalResultNotEqualsOWins(MethodDeclaration m) {
+        bugChangeResultEquality(m, "O_WINS");
     }
 
     public static void bugIsTerminalResultNotEqualsDraw(MethodDeclaration m) {
@@ -774,7 +774,7 @@ public class BugLibrary {
         });
     }
 
-    private static void bugEqualsCellY(MethodDeclaration m) {
+    private static void bugEqualsCellO(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(IfStmt.class).forEach(ifStmt -> {
@@ -782,7 +782,7 @@ public class BugLibrary {
             if (condition.isBinaryExpr()) {
                 BinaryExpr binary = condition.asBinaryExpr();
                 if (binary.getRight().toString().equals("Cell.EMPTY")) {
-                    binary.setRight(new FieldAccessExpr(new NameExpr("Cell"), "Y"));
+                    binary.setRight(new FieldAccessExpr(new NameExpr("Cell"), "O"));
                 }
             }
         });

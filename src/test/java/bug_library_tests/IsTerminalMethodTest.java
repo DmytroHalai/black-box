@@ -1,10 +1,8 @@
 package bug_library_tests;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.ArrayCreationLevel;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
@@ -100,10 +98,10 @@ class IsTerminalMethodTest {
     @Test
     void testBugIsTerminalResultNotEqualsYWins() {
         //given
-        BugLibrary.bugIsTerminalResultNotEqualsYWins(m);
+        BugLibrary.bugIsTerminalResultNotEqualsOWins(m);
 
         //then
-        assertIfReturnsNotEqualsTo(m, "Y_WINS");
+        assertIfReturnsNotEqualsTo(m, "O_WINS");
     }
 
     @Test

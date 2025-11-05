@@ -67,7 +67,7 @@ public class BugRegistry {
                 BugLibrary::bugValidateMoveInvertThirdAnd,
                 BugLibrary::bugValidateMoveBoardEqualsEmpty,
                 BugLibrary::bugValidateMoveBoardNotEqualsX,
-                BugLibrary::bugValidateMoveBoardNotEqualsY,
+                BugLibrary::bugValidateMoveBoardNotEqualsO,
                 BugLibrary::bugValidateMoveIdxWithXX,
                 BugLibrary::bugValidateMoveIdxWithYY
         );
@@ -76,11 +76,11 @@ public class BugRegistry {
                 BugLibrary::bugResetEmpty,
                 BugLibrary::bugResetNoArraysFill,
                 BugLibrary::bugResetCellX,
-                BugLibrary::bugResetCellY,
+                BugLibrary::bugResetCellO,
                 BugLibrary::bugResetTurnToO,
                 BugLibrary::bugResetResultToDraw,
                 BugLibrary::bugResetResultToXWins,
-                BugLibrary::bugResetResultToYWins
+                BugLibrary::bugResetResultToOWins
         );
 
         register("isBoardFull",
@@ -88,7 +88,7 @@ public class BugRegistry {
                 BugLibrary::bugIsBoardFullAlwaysFalse,
                 BugLibrary::bugIsBoardFullCNotEqualsEmpty,
                 BugLibrary::bugIsBoardFullCEqualsX,
-                BugLibrary::bugIsBoardFullCEqualsY
+                BugLibrary::bugIsBoardFullCEqualsO
         );
 
         register("initBoard",
@@ -107,7 +107,7 @@ public class BugRegistry {
                 BugLibrary::bugIsTerminalAlwaysFalse,
                 BugLibrary::bugIsTerminalResultEqualsOngoing,
                 BugLibrary::bugIsTerminalResultNotEqualsXWins,
-                BugLibrary::bugIsTerminalResultNotEqualsYWins,
+                BugLibrary::bugIsTerminalResultNotEqualsOWins,
                 BugLibrary::bugIsTerminalResultNotEqualsDraw
         );
 
@@ -144,6 +144,10 @@ public class BugRegistry {
         List<BugMutation> list = BUGS.get(methodName);
         if (list == null || index >= list.size()) return Optional.empty();
         return Optional.of(list.get(index % list.size()));
+    }
+
+    public static int getBugMethodsAmount(String bugMethodName) {
+        return BUGS.get(bugMethodName).size();
     }
 
     public static String[] getAllMethodNames() {

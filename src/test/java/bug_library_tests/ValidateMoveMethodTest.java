@@ -242,9 +242,9 @@ class ValidateMoveMethodTest {
     }
 
     @Test
-    void testBugValidateMoveBoardNotEqualsY() {
+    void testBugValidateMoveBoardNotEqualsO() {
         //given
-        BugLibrary.bugValidateMoveBoardNotEqualsY(m);
+        BugLibrary.bugValidateMoveBoardNotEqualsO(m);
 
         //when
         BlockStmt body = m.getBody().orElseThrow();
@@ -252,7 +252,7 @@ class ValidateMoveMethodTest {
         //then
         IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
         boolean cond = ifStmt.getCondition().asBinaryExpr().
-                getRight().asFieldAccessExpr().getName().toString().equals("Y");
+                getRight().asFieldAccessExpr().getName().toString().equals("O");
         assertTrue(cond, "Expected isTerminal condition to be inverted");
     }
 

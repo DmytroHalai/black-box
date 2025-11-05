@@ -99,7 +99,7 @@ class IsBoardFullMethodTest {
     @Test
     void tesBugIsBoardFullCEqualsY() {
         //given
-        BugLibrary.bugIsBoardFullCEqualsY(m);
+        BugLibrary.bugIsBoardFullCEqualsO(m);
 
         //when
         BlockStmt body = m.getBody().orElseThrow();
@@ -108,7 +108,7 @@ class IsBoardFullMethodTest {
         boolean cond = body.findAll(IfStmt.class).
                 getFirst().getCondition().asBinaryExpr().
                 getRight().asFieldAccessExpr().
-                getName().toString().equals("Y");
+                getName().toString().equals("O");
         assertTrue(cond, "Expected condition to use '!=' operator");
     }
 }

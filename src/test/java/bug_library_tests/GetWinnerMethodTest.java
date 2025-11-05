@@ -5,6 +5,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.SwitchEntry;
 import org.example.generator.BugLibrary;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +53,7 @@ class GetWinnerMethodTest {
         BugLibrary.bugGetWinnerAlwaysX(m);
 
         // then
-        assertHasReturn(m, "Optional.of(Player.X)");
+        assertHasReturn(m,"Optional.of(Player.X)");
     }
 
     @Test
@@ -66,16 +67,20 @@ class GetWinnerMethodTest {
 
     @Test
     void testBugGetWinnerFlipWinners() {
+        //given
         BugLibrary.bugGetWinnerFlipWinners(m);
 
-        assertHasReturn(m, "Optional.of(Player.X)");
-        assertHasReturn(m, "Optional.of(Player.O)");
+        //then
+        assertTrue(checkSwitch(m, 0, "Optional.of(Player.O);"));
+        assertTrue(checkSwitch(m, 1, "Optional.of(Player.X);"));
     }
 
     @Test
     void testBugGetWinnerRemoveSwitch() {
+        //given
         BugLibrary.bugGetWinnerRemoveSwitch(m);
 
+        //then
         assertHasReturn(m, "Optional.empty()");
     }
 
@@ -99,5 +104,12 @@ class GetWinnerMethodTest {
         // assert that expected return statement is found
         assertTrue(hasExpectedReturn,
                 "Expected return statement 'return " + expectedReturnExpr + ";' in method body");
+    }
+
+    private boolean checkSwitch(MethodDeclaration m, int index, String equalifier) {
+        //when
+        return m.getBody().
+                get().findAll(SwitchEntry.class).get(index).getStatements().
+                get(0).toString().equals(equalifier);
     }
 }
