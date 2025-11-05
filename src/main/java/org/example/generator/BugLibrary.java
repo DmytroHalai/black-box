@@ -1,5 +1,6 @@
 package org.example.generator;
 
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
@@ -606,35 +607,35 @@ public class BugLibrary {
     // ========== Bugs for setLines ==========
 
     public static void bugSetLinesRemoveFirstDiagonal(MethodDeclaration m) {
-        removeDiagonal(m, "{0, 1, 2}");
+        removeDiagonal(m, 0);
     }
 
     public static void bugSetLinesRemoveSecondDiagonal(MethodDeclaration m) {
-        removeDiagonal(m, "{3, 4, 5}");
+        removeDiagonal(m, 1);
     }
 
     public static void bugSetLinesRemoveThirdDiagonal(MethodDeclaration m) {
-        removeDiagonal(m, "{6, 7, 8}");
+        removeDiagonal(m, 2);
     }
 
     public static void bugSetLinesRemoveForthDiagonal(MethodDeclaration m) {
-        removeDiagonal(m, "{0, 3, 6}");
+        removeDiagonal(m, 3);
     }
 
     public static void bugSetLinesRemoveFifthDiagonal(MethodDeclaration m) {
-        removeDiagonal(m, "{1, 4, 7}");
+        removeDiagonal(m, 4);
     }
 
     public static void bugSetLinesRemoveSixthDiagonal(MethodDeclaration m) {
-        removeDiagonal(m, "{2, 5, 8}");
+        removeDiagonal(m, 5);
     }
 
     public static void bugSetLinesRemoveSeventhDiagonal(MethodDeclaration m) {
-        removeDiagonal(m, "{0, 4, 8}");
+        removeDiagonal(m, 6);
     }
 
     public static void bugSetLinesRemoveEighthDiagonal(MethodDeclaration m) {
-        removeDiagonal(m, "{2, 4, 6}");
+        removeDiagonal(m, 7);
     }
 
     // ========== Bugs for hasWin ==========
@@ -807,24 +808,12 @@ public class BugLibrary {
         });
     }
 
-    private static void removeDiagonal(MethodDeclaration m, String diagonal) {
+    private static void removeDiagonal(MethodDeclaration m, int index) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(ArrayCreationExpr.class).forEach(array -> {
-            if (array.getElementType().asString().equals("int")) {
-                array.getInitializer().ifPresent(init -> {
-                    ArrayInitializerExpr newInit = new ArrayInitializerExpr();
-
-                    init.getValues().forEach(value -> {
-                        if (!value.toString().equals(diagonal)) {
-                            newInit.getValues().add(value.clone());
-                        }
-                    });
-
-                    array.setInitializer(newInit);
-                });
-            }
-        });
+        body.findAll(ArrayInitializerExpr.class).
+                get(0).getValues().
+                get(index).ifArrayInitializerExpr(Node::remove);
     }
 
     private static void bugThreeInRowFlipEquality(MethodDeclaration m, String valueLeft, String valueRight) {

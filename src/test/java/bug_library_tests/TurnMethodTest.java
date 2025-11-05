@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TurnMethodTest {
+class TurnMethodTest {
     MethodDeclaration m;
 
     private MethodDeclaration parseMethod(String code) {
