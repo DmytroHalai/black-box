@@ -43,11 +43,11 @@ public class BugLibrary {
     }
 
     public static void bugThreeInRowIsNotEmptyCellJ(MethodDeclaration m) {
-        bugThreeInRowChangeIndex(m, "i", "j");
+        bugThreeInRowChangeIndex(m, "j");
     }
 
     public static void bugThreeInRowIsNotEmptyCellK(MethodDeclaration m) {
-        bugThreeInRowChangeIndex(m, "i", "k");
+        bugThreeInRowChangeIndex(m, "k");
     }
 
 
@@ -741,7 +741,7 @@ public class BugLibrary {
         });
     }
 
-    private static void bugThreeInRowChangeIndex(MethodDeclaration m, String oldValue, String newValue) {
+    private static void bugThreeInRowChangeIndex(MethodDeclaration m, String newValue) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(BinaryExpr.class).forEach(expr -> {
@@ -749,7 +749,7 @@ public class BugLibrary {
                     expr.getRight().toString().equals("Cell.EMPTY") &&
                     expr.getLeft().isArrayAccessExpr()) {
                 ArrayAccessExpr arrayAccess = expr.getLeft().asArrayAccessExpr();
-                if (arrayAccess.getIndex().toString().equals(oldValue)) {
+                if (arrayAccess.getIndex().toString().equals("i")) {
                     arrayAccess.setIndex(new NameExpr(newValue));
                 }
             }

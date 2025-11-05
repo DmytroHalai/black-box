@@ -88,13 +88,13 @@ public final class Engine implements GameEngine {
         return turn;
     }
 
-    @Override//
+    @Override
     public boolean isBoardFull() {
         for (Cell c : board) if (c == Cell.EMPTY) return false;
         return true;
     }
 
-    @Override//
+    @Override
     public boolean hasWin() {
         for (int[] line : lines) {
             if (threeInRow(line[0], line[1], line[2])) return true;
@@ -111,7 +111,7 @@ public final class Engine implements GameEngine {
         };
     }
 
-    @Override//
+    @Override
     public boolean threeInRow(int i, int j, int k) {
         boolean isNotEmpty = board[i] != Cell.EMPTY;
         boolean equalIJ = board[i] == board[j];
