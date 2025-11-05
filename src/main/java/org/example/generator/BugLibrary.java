@@ -385,6 +385,7 @@ public class BugLibrary {
                 removeIf(stmt -> stmt.toString().contains("Arrays.fill")));
     }
 
+    //TODO: extract private method
     public static void bugResetCellX(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
@@ -424,6 +425,7 @@ public class BugLibrary {
         });
     }
 
+    //todo: extract private method
     public static void bugResetResultToDraw(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
@@ -499,6 +501,31 @@ public class BugLibrary {
             }
         });
     }
+
+    public static void bugIsBoardFullCNotEqualsEmpty(MethodDeclaration m) {
+        BlockStmt body = m.getBody().orElse(null);
+        if (body == null) return;
+        body.findAll(IfStmt.class).forEach(ifStmt -> {
+            var condition = ifStmt.getCondition();
+            if (condition.isBinaryExpr()) {
+                BinaryExpr binary = condition.asBinaryExpr();
+                if (binary.getLeft().toString().equals("c") &&
+                        binary.getOperator() == BinaryExpr.Operator.EQUALS &&
+                        binary.getRight().toString().equals("Cell.EMPTY")) {
+                    binary.setOperator(BinaryExpr.Operator.NOT_EQUALS);
+                }
+            }
+        });
+    }
+
+    public static void bugIsBoardFullCEqualsX(MethodDeclaration m) {
+        bugEqualsCellX(m);
+    }
+
+    public static void bugIsBoardFullCEqualsY(MethodDeclaration m) {
+        bugEqualsCellY(m);
+    }
+
 
     // ========== Bugs for initBoard ==========
 
@@ -608,31 +635,6 @@ public class BugLibrary {
 
     public static void bugTurnAlwaysO(MethodDeclaration m) {
         bugReturnStatementOnly(m, "Player.O");
-    }
-
-    // ========== Bugs for isBoardFull ==========
-    public static void bugIsBoardFullCNotEqualsEmpty(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(IfStmt.class).forEach(ifStmt -> {
-            var condition = ifStmt.getCondition();
-            if (condition.isBinaryExpr()) {
-                BinaryExpr binary = condition.asBinaryExpr();
-                if (binary.getLeft().toString().equals("c") &&
-                        binary.getOperator() == BinaryExpr.Operator.EQUALS &&
-                        binary.getRight().toString().equals("Cell.EMPTY")) {
-                    binary.setOperator(BinaryExpr.Operator.NOT_EQUALS);
-                }
-            }
-        });
-    }
-
-    public static void bugIsBoardFullCEqualsX(MethodDeclaration m) {
-        bugEqualsCellX(m);
-    }
-
-    public static void bugIsBoardFullCEqualsY(MethodDeclaration m) {
-        bugEqualsCellY(m);
     }
 
     // ========== Bugs for setLines ==========

@@ -3,11 +3,18 @@ package bug_library_tests;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ReturnStmt;
 import org.example.generator.BugLibrary;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ThreeInRowMethodTest {
@@ -40,27 +47,58 @@ class ThreeInRowMethodTest {
 
     @Test
     void testBugThreeInRowAlwaysTrue() {
+        // given
         BugLibrary.bugThreeInRowAlwaysTrue(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("return true"), "Expected method to return true");
+        // when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        // then
+
+        // 1. find all return statements
+        List<ReturnStmt> returns = body.findAll(ReturnStmt.class);
+        assertFalse(returns.isEmpty(), "Expected at least one return statement");
+
+        // 2. check if there's return true exists
+        boolean hasReturnTrue = returns.getFirst().getExpression().get().toString().equals("true");
+        assertTrue(hasReturnTrue);
     }
+
 
     @Test
     void testBugThreeInRowAlwaysFalse() {
+        //given
         BugLibrary.bugThreeInRowAlwaysFalse(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("return false"), "Expected method to return false");
+        // when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        // then
+
+        // 1. find all return statements
+        List<ReturnStmt> returns = body.findAll(ReturnStmt.class);
+        assertFalse(returns.isEmpty(), "Expected at least one return statement");
+
+        // 2. check if there's return true exists
+        boolean hasReturnTrue = returns.getFirst().getExpression().get().toString().equals("false");
+        assertTrue(hasReturnTrue);
     }
 
     @Test
     void testBugThreeInRowIsNotEmptyEquals() {
+        //given
         BugLibrary.bugThreeInRowIsNotEmptyEquals(m);
 
-        String result = m.toString();
-        assertTrue(result.contains("boolean isNotEmpty = board[i] == Cell.EMPTY"), "Method works not correctly!!!");
+        //when
+        BlockStmt body = m.getBody().orElseThrow();
+
+        //then
+        boolean hasBuggedCheck = body.findAll(VariableDeclarationExpr.class).stream()
+                .anyMatch(v -> v.toString().contains("board[i] == Cell.EMPTY"));
+
+        assertTrue(hasBuggedCheck, "Expected buggy version with '==' instead of '!='");
     }
+
 
     @Test
     void testBugThreeInRowIsNotEmptyCellX() {
