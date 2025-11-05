@@ -468,39 +468,6 @@ public class BugLibrary {
         bugReturnStatementOnly(m, "false");
     }
 
-    public static void bugIsBoardFullInvertThreeInRow(MethodDeclaration m) {
-        invertMethodCall(m, "threeInRow");
-    }
-
-    public static void bugIsBoardFullInvertThreeInRowAllIndex0(MethodDeclaration m) {
-        bugIsBoardFullInvertThreeInRowAllByOneIndex(m, "0");
-    }
-
-    public static void bugIsBoardFullInvertThreeInRowAllIndex1(MethodDeclaration m) {
-        bugIsBoardFullInvertThreeInRowAllByOneIndex(m, "1");
-    }
-
-    public static void bugIsBoardFullInvertThreeInRowAllIndex2(MethodDeclaration m) {
-        bugIsBoardFullInvertThreeInRowAllByOneIndex(m, "2");
-    }
-
-    public static void bugIsBoardFullInvertReturnAfterIf(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(IfStmt.class).forEach(ifStmt -> {
-            if (ifStmt.getThenStmt().isReturnStmt()) {
-                ReturnStmt returnStmt = ifStmt.getThenStmt().asReturnStmt();
-                if (returnStmt.getExpression().isPresent() &&
-                        returnStmt.getExpression().get().isBooleanLiteralExpr()) {
-                    BooleanLiteralExpr boolExpr = returnStmt.getExpression().get().asBooleanLiteralExpr();
-                    if (boolExpr.getValue()) {
-                        returnStmt.setExpression(new BooleanLiteralExpr(false));
-                    }
-                }
-            }
-        });
-    }
-
     public static void bugIsBoardFullCNotEqualsEmpty(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
@@ -670,6 +637,41 @@ public class BugLibrary {
         removeDiagonal(m, "{2, 4, 6}");
     }
 
+    // ========== Bugs for hasWin ==========
+
+    public static void bugHasWinFullInvertThreeInRowAllIndex0(MethodDeclaration m) {
+        bugHasWinInvertThreeInRowAllByOneIndex(m, "0");
+    }
+
+    public static void bugHasWinInvertThreeInRowAllIndex1(MethodDeclaration m) {
+        bugHasWinInvertThreeInRowAllByOneIndex(m, "1");
+    }
+
+    public static void bugHasWinInvertThreeInRowAllIndex2(MethodDeclaration m) {
+        bugHasWinInvertThreeInRowAllByOneIndex(m, "2");
+    }
+
+    public static void bugHasWinInvertThreeInRow(MethodDeclaration m) {
+        invertMethodCall(m, "threeInRow");
+    }
+
+    public static void bugHasWinInvertReturnAfterIf(MethodDeclaration m) {
+        BlockStmt body = m.getBody().orElse(null);
+        if (body == null) return;
+        body.findAll(IfStmt.class).forEach(ifStmt -> {
+            if (ifStmt.getThenStmt().isReturnStmt()) {
+                ReturnStmt returnStmt = ifStmt.getThenStmt().asReturnStmt();
+                if (returnStmt.getExpression().isPresent() &&
+                        returnStmt.getExpression().get().isBooleanLiteralExpr()) {
+                    BooleanLiteralExpr boolExpr = returnStmt.getExpression().get().asBooleanLiteralExpr();
+                    if (boolExpr.getValue()) {
+                        returnStmt.setExpression(new BooleanLiteralExpr(false));
+                    }
+                }
+            }
+        });
+    }
+
     // ========== Helper methods ==========
 
     private static void bugPlayTurnChangeResultState(MethodDeclaration m, String resultState) {
@@ -738,7 +740,7 @@ public class BugLibrary {
         });
     }
 
-    public static void bugThreeInRowChangeIndex(MethodDeclaration m, String oldValue, String newValue) {
+    private static void bugThreeInRowChangeIndex(MethodDeclaration m, String oldValue, String newValue) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(BinaryExpr.class).forEach(expr -> {
@@ -856,7 +858,7 @@ public class BugLibrary {
         });
     }
 
-    private static void bugIsBoardFullInvertThreeInRowAllByOneIndex(MethodDeclaration m, String index) {
+    private static void bugHasWinInvertThreeInRowAllByOneIndex(MethodDeclaration m, String index) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(MethodCallExpr.class).forEach(call -> {
