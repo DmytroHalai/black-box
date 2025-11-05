@@ -21,11 +21,6 @@ public final class Engine implements GameEngine {
     }
 
     @Override
-    public Cell[] getBoard() {
-        return board;
-    }
-
-    @Override
     public void initBoard() {
         board = new Cell[9];
     }
@@ -118,7 +113,10 @@ public final class Engine implements GameEngine {
 
     @Override
     public boolean threeInRow(int i, int j, int k) {
-        return board[i] != Cell.EMPTY && board[i] == board[j] && board[j] == board[k];
+        boolean isNotEmpty = board[i] != Cell.EMPTY;
+        boolean equalIJ = board[i] == board[j];
+        boolean equalJK = board[j] == board[k];
+        return isNotEmpty && equalIJ && equalJK;
     }
 
 }
