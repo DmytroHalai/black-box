@@ -4,6 +4,8 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 
+import java.util.List;
+
 public class BugLibrary {
 
     // ========== Bugs for threeInRow ==========
@@ -329,28 +331,15 @@ public class BugLibrary {
     }
 
     public static void bugValidateMoveInvertFirstAnd(MethodDeclaration m) {
-        BlockStmt body = m.getBody().orElse(null);
-        if (body == null) return;
-        body.findAll(IfStmt.class).forEach(ifStmt -> {
-            var condition = ifStmt.getCondition();
-            if (condition.isBinaryExpr()) {
-                var binaries = condition.findAll(BinaryExpr.class);
-                for (BinaryExpr expr : binaries) {
-                    if (expr.getOperator() == BinaryExpr.Operator.OR) {
-                        expr.setOperator(BinaryExpr.Operator.AND);
-                        break;
-                    }
-                }
-            }
-        });
+        bugValidateMoveInvertLogicalOperator(m, (short) 0);
     }
 
     public static void bugValidateMoveInvertSecondAnd(MethodDeclaration m) {
-        bugValidateMoveInvertLogicalOperator(m, (short) 2);
+        bugValidateMoveInvertLogicalOperator(m, (short) 1);
     }
 
     public static void bugValidateMoveInvertThirdAnd(MethodDeclaration m) {
-        bugValidateMoveInvertLogicalOperator(m, (short) 3);
+        bugValidateMoveInvertLogicalOperator(m, (short) 2);
     }
 
     public static void bugValidateMoveBoardEqualsEmpty(MethodDeclaration m) {
@@ -718,20 +707,14 @@ public class BugLibrary {
     private static void bugValidateMoveInvertLogicalOperator(MethodDeclaration m, short number) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
+
         body.findAll(IfStmt.class).forEach(ifStmt -> {
-            var condition = ifStmt.getCondition();
-            if (condition.isBinaryExpr()) {
-                var binaries = condition.findAll(BinaryExpr.class);
-                int orCount = 0;
-                for (BinaryExpr expr : binaries) {
-                    if (expr.getOperator() == BinaryExpr.Operator.OR) {
-                        orCount++;
-                        if (orCount == number) {
-                            expr.setOperator(BinaryExpr.Operator.AND);
-                            break;
-                        }
-                    }
-                }
+            Expression condition = ifStmt.getCondition();
+            List<BinaryExpr> ors = condition.findAll(BinaryExpr.class).stream()
+                    .filter(expr -> expr.getOperator() == BinaryExpr.Operator.OR)
+                    .toList();
+            if (number >= 0 && number < ors.size()) {
+                ors.get(ors.size() - number - 1).setOperator(BinaryExpr.Operator.AND);
             }
         });
     }

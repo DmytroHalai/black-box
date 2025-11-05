@@ -102,10 +102,62 @@ class ValidateMoveMethodTest {
         BugLibrary.bugValidateMoveInvertFirstAnd(m);
 
         String result = m.toString();
-        System.out.println(result);
         assertTrue(result.contains("if (move.x() < 0 && move.x() > 2 || move.y() < 0 || move.y() > 2)"));
     }
 
+    @Test
+    void testBugValidateMoveInvertSecondAnd() {
+        BugLibrary.bugValidateMoveInvertSecondAnd(m);
 
+        String result = m.toString();
+        assertTrue(result.contains("if (move.x() < 0 || move.x() > 2 && move.y() < 0 || move.y() > 2)"));
+    }
 
+    @Test
+    void testBugValidateMoveInvertThirdAnd() {
+        BugLibrary.bugValidateMoveInvertThirdAnd(m);
+
+        String result = m.toString();
+        assertTrue(result.contains("if (move.x() < 0 || move.x() > 2 || move.y() < 0 && move.y() > 2)"));
+    }
+
+    @Test
+    void testBugValidateMoveBoardEqualsEmpty() {
+        BugLibrary.bugValidateMoveBoardEqualsEmpty(m);
+
+        String result = m.toString();
+        assertTrue(result.contains("if (board[idx(move.x(), move.y())] == Cell.EMPTY)"));
+    }
+
+    @Test
+    void testBugValidateMoveBoardNotEqualsX() {
+        BugLibrary.bugValidateMoveBoardNotEqualsX(m);
+
+        String result = m.toString();
+        assertTrue(result.contains("if (board[idx(move.x(), move.y())] != Cell.X)"));
+    }
+
+    @Test
+    void testBugValidateMoveBoardNotEqualsY() {
+        BugLibrary.bugValidateMoveBoardNotEqualsY(m);
+
+        String result = m.toString();
+        assertTrue(result.contains("if (board[idx(move.x(), move.y())] != Cell.Y)"));
+    }
+
+    @Test
+    void testBugValidateMoveIdxWithXX() {
+        BugLibrary.bugValidateMoveIdxWithXX(m);
+
+        String result = m.toString();
+        assertTrue(result.contains("if (board[idx(move.x(), move.x())] != Cell.EMPTY)"));
+    }
+
+    @Test
+    void testBugValidateMoveIdxWithYY() {
+        BugLibrary.bugValidateMoveIdxWithYY(m);
+
+        String result = m.toString();
+        assertTrue(result.contains("if (board[idx(move.y(), move.y())] != Cell.EMPTY)"));
+    }
 }
