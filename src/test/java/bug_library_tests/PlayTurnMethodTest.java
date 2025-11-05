@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BugLibraryPlayTurnMethodTest {
+class PlayTurnMethodTest {
     MethodDeclaration m;
 
     private MethodDeclaration parseMethod(String code) {
@@ -176,7 +176,4 @@ public class BugLibraryPlayTurnMethodTest {
         String result = m.toString();
         assertTrue(result.contains("int i = idx(move.y(), move.y());"));
     }
-
-
-
 }

@@ -708,8 +708,7 @@ public class BugLibrary {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(BinaryExpr.class).forEach(expr -> {
-            if (expr.getOperator() == BinaryExpr.Operator.LESS &&
-                    expr.getLeft().toString().equals(methodName) &&
+            if (expr.getLeft().toString().equals(methodName) &&
                     expr.getRight().toString().equals(compareValue)) {
                 expr.setOperator(newOperator);
             }

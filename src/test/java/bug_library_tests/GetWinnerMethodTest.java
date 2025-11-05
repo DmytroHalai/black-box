@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class BugLibraryGetWinnerMethodTest {
+class GetWinnerMethodTest {
     MethodDeclaration m;
 
     private MethodDeclaration parseMethod(String code) {

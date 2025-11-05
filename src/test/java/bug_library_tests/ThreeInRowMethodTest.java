@@ -4,14 +4,13 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import org.example.generator.BugLibrary;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class BugLibraryThreeInRowMethodTest {
+class ThreeInRowMethodTest {
     MethodDeclaration m;
 
     private MethodDeclaration parseMethod(String code) {
