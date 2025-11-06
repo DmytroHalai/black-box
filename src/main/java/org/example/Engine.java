@@ -8,12 +8,7 @@ import java.util.Optional;
 
 import static org.example.app_logic.api.View.idx;
 
-public final class Engine implements GameEngine {
-    private static int[][] lines;
-    Cell[] board;
-    private Player turn;
-    private Result result;
-
+public final class Engine extends GameEngine {
     public Engine() {
         initBoard();
         reset();
