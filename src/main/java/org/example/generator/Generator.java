@@ -20,17 +20,25 @@ import static org.example.generator.BugRegistry.*;
 
 public class Generator {
 
+    private static final Random random = new Random();
+
     public static void generate(int num, String enginePath, String saveImplFolder) throws FileNotFoundException {
         File folder = new File(saveImplFolder);
         if (!folder.exists()) {
             folder.mkdirs();
         }
+
+        int correctIndex = random.nextInt(num);
+
         for (int i = 0; i < num; i++) {
-            doImplementation(enginePath, saveImplFolder, "Engine" + i);
+            String className = "Engine" + i;
+            boolean isCorrect = (i == correctIndex);
+
+            doImplementation(enginePath, saveImplFolder, className, isCorrect);
         }
     }
 
-    private static void doImplementation(String enginePath, String saveImplFolder, String className) throws FileNotFoundException {
+    private static void doImplementation(String enginePath, String saveImplFolder, String className, boolean isCorrect) throws FileNotFoundException {
         JavaParser parser = new JavaParser();
         CompilationUnit cu = parser.parse(new File(enginePath))
                 .getResult().orElseThrow();
@@ -40,7 +48,9 @@ public class Generator {
                 .forEach(constructorDeclaration -> constructorDeclaration.setName(className));
         cu.findAll(ClassOrInterfaceDeclaration.class)
                 .forEach(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.setName(className));
-        makeRandomBugs(cu);
+        if (!isCorrect) {
+            makeRandomBugs(cu);
+        }
 
         try (FileWriter fw = new FileWriter(saveImplFolder + "/" + className + ".java")) {
             fw.write(cu.toString());
@@ -50,7 +60,6 @@ public class Generator {
     }
 
     private static void makeRandomBugs(CompilationUnit cu) {
-        Random random = new Random();
         String[] methodNames = getAllMethodNames();
         int methodCounter = 0;
         Set<Integer> used = new HashSet<>();
