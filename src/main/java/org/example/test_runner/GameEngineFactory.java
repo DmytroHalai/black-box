@@ -2,7 +2,6 @@ package org.example.test_runner;
 
 import org.example.app_logic.api.GameEngine;
 import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
 
 import java.util.List;
 import java.util.Set;
@@ -37,10 +36,6 @@ public class GameEngineFactory {
         } catch (Exception e) {
             throw new RuntimeException("Failed to create engine at index " + index, e);
         }
-    }
-
-    public static int totalImplementations() {
-        return IMPLEMENTATIONS.size();
     }
 
     public static List<String> getImplementationNames() {

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class InitBoardMethodTest {
     MethodDeclaration m;
 
@@ -49,6 +51,6 @@ class InitBoardMethodTest {
                 getValue().asArrayCreationExpr().getLevels().
                 get(0).getDimension().
                 get().toString().equals("3");
-        assert(cond);
+        assertTrue(cond, "Expected board to be initialized with size 3");
     }
 }

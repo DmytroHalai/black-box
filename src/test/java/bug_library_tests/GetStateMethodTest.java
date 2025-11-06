@@ -67,6 +67,7 @@ class GetStateMethodTest {
     void testBugGetState1Iteration() {
         //given
         BugLibrary.bugGetState1Iteration(m);
+        System.out.println(m);
 
         //when
         BlockStmt body = m.getBody().orElseThrow();

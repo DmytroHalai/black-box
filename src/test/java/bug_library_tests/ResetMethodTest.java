@@ -91,7 +91,6 @@ class ResetMethodTest {
         assertArgChanged(body, "Cell.X");
     }
 
-
     @Test
     void testBugResetCellY() {
         // given

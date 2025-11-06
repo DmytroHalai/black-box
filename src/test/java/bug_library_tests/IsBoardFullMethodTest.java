@@ -64,7 +64,7 @@ class IsBoardFullMethodTest {
 
         //then
         boolean isAlwaysTrue = body.findAll(ReturnStmt.class).getFirst().getExpression().get().toString().equals("false");
-        assertTrue(isAlwaysTrue, "Expected isBoardFull to always return true");
+        assertTrue(isAlwaysTrue, "Expected isBoardFull to always return false");
     }
 
     @Test
@@ -93,11 +93,11 @@ class IsBoardFullMethodTest {
                 getFirst().getCondition().asBinaryExpr().
                 getRight().asFieldAccessExpr().
                 getName().toString().equals("X");
-        assertTrue(cond, "Expected condition to use '!=' operator");
+        assertTrue(cond, "Expected that condition to compare c to Cell.X");
     }
 
     @Test
-    void tesBugIsBoardFullCEqualsY() {
+    void tesBugIsBoardFullCEqualsO() {
         //given
         BugLibrary.bugIsBoardFullCEqualsO(m);
 
@@ -109,6 +109,6 @@ class IsBoardFullMethodTest {
                 getFirst().getCondition().asBinaryExpr().
                 getRight().asFieldAccessExpr().
                 getName().toString().equals("O");
-        assertTrue(cond, "Expected condition to use '!=' operator");
+        assertTrue(cond, "Expected that condition to compare c to Cell.O");
     }
 }

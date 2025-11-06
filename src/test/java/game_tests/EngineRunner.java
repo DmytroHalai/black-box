@@ -25,31 +25,28 @@ public class EngineRunner {
         List<String> implNames = GameEngineFactory.getImplementationNames();
         int total = implNames.size();
 
-        System.out.println("Знайдено " + total + " імплементацій GameEngine\n");
+        System.out.println("Found " + total + " implementations of GameEngine\n");
 
-        // Очищаємо файл
         try {
             Files.writeString(Paths.get(SUMMARY_FILE), "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
-            System.err.println("Не вдалося створити " + SUMMARY_FILE);
+            System.err.println("Error occurred during creating " + SUMMARY_FILE);
         }
 
         for (int i = 0; i < total; i++) {
             String name = implNames.get(i);
             System.setProperty("engine.index", String.valueOf(i));
 
-            System.out.printf("[%d/%d] Тестування %s... ", i + 1, total, name);
+            System.out.printf("[%d/%d] Testing %s... ", i + 1, total, name);
 
             TestResultListener listener = new TestResultListener();
-            launcher.registerTestExecutionListeners(listener); // додаємо НОВИЙ слухач
+            launcher.registerTestExecutionListeners(listener);
 
             LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
                     .selectors(selectClass(EngineTest.class))
                     .build();
 
             launcher.execute(request);
-
-            // НЕ знімаємо слухача — він одноразовий, новий на кожну ітерацію
 
             if (listener.isAllPassed()) {
                 appendToSummary(name);
@@ -59,7 +56,7 @@ public class EngineRunner {
             }
         }
 
-        System.out.println("\nГотово. Успішні: " + SUMMARY_FILE);
+        System.out.println("\nDone. Passed: " + SUMMARY_FILE);
     }
 
     private static void appendToSummary(String name) {
@@ -70,11 +67,10 @@ public class EngineRunner {
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND
             );
         } catch (IOException e) {
-            System.err.println("Помилка запису: " + name);
+            System.err.println("Error occurred during writing: " + name);
         }
     }
 
-    // Слухач — НОВИЙ об’єкт на кожну імплементацію
     private static class TestResultListener implements TestExecutionListener {
         private boolean allPassed = true;
 
