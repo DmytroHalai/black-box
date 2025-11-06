@@ -179,7 +179,7 @@ public abstract class GameEngine {
      *     <li>{@code O} — клітинка, зайнята гравцем O.</li>
      * </ul>
      */
-    protected enum Cell {
+    public enum Cell {
         EMPTY, X, O
     }
 }
