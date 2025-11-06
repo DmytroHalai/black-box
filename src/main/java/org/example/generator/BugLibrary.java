@@ -161,14 +161,14 @@ public class BugLibrary {
 
     public static void bugGetWinnerFlipWinners(MethodDeclaration m) {
         m.getBody().ifPresent(body -> body.findAll(SwitchEntry.class)
-            .forEach(entry -> entry.getStatements().forEach(stmt -> {
-                String s = stmt.toString();
-                if (s.contains("Player.X")) {
-                    stmt.replace(new ExpressionStmt(new NameExpr("Optional.of(Player.O)")));
-                } else if (s.contains("Player.O")) {
-                    stmt.replace(new ExpressionStmt(new NameExpr("Optional.of(Player.X)")));
-                }
-            }))
+                .forEach(entry -> entry.getStatements().forEach(stmt -> {
+                    String s = stmt.toString();
+                    if (s.contains("Player.X")) {
+                        stmt.replace(new ExpressionStmt(new NameExpr("Optional.of(Player.O)")));
+                    } else if (s.contains("Player.O")) {
+                        stmt.replace(new ExpressionStmt(new NameExpr("Optional.of(Player.X)")));
+                    }
+                }))
         );
     }
 
@@ -385,78 +385,40 @@ public class BugLibrary {
                 removeIf(stmt -> stmt.toString().contains("Arrays.fill")));
     }
 
-    //TODO: extract private method
     public static void bugResetCellX(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(MethodCallExpr.class).forEach(call -> {
-            if (call.getNameAsString().equals("fill") &&
-                    call.getScope().isPresent() &&
-                    call.getScope().get().toString().equals("Arrays") &&
-                    call.getArguments().size() == 2 &&
-                    call.getArgument(1).toString().equals("Cell.EMPTY")) {
-                call.setArgument(1, new FieldAccessExpr(new NameExpr("Cell"), "X"));
-            }
-        });
+        cellChangeTo(body, "X");
     }
 
     public static void bugResetCellO(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(MethodCallExpr.class).forEach(call -> {
-            if (call.getNameAsString().equals("fill") &&
-                    call.getScope().isPresent() &&
-                    call.getScope().get().toString().equals("Arrays") &&
-                    call.getArguments().size() == 2 &&
-                    call.getArgument(1).toString().equals("Cell.EMPTY")) {
-                call.setArgument(1, new FieldAccessExpr(new NameExpr("Cell"), "O"));
-            }
-        });
+        cellChangeTo(body, "O");
     }
 
     public static void bugResetTurnToO(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("turn") &&
-                    assign.getValue().toString().equals("Player.X")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Player"), "O"));
-            }
-        });
+        changeResultAssignmentTO(body,"Player","O", 0);
     }
 
-    //todo: extract private method
     public static void bugResetResultToDraw(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("result") &&
-                    assign.getValue().toString().equals("Result.ONGOING")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), "DRAW"));
-            }
-        });
+        changeResultAssignmentTO(body,"Result", "DRAW", 1);
     }
 
     public static void bugResetResultToXWins(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("result") &&
-                    assign.getValue().toString().equals("Result.ONGOING")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), "X_WINS"));
-            }
-        });
+        changeResultAssignmentTO(body, "Result","X_WINS", 1);
     }
 
     public static void bugResetResultToOWins(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("result") &&
-                    assign.getValue().toString().equals("Result.ONGOING")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), "O_WINS"));
-            }
-        });
+        changeResultAssignmentTO(body, "Result","O_WINS", 1);
     }
 
     // ========== Bugs for isBoardFull ==========
@@ -472,17 +434,7 @@ public class BugLibrary {
     public static void bugIsBoardFullCNotEqualsEmpty(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(IfStmt.class).forEach(ifStmt -> {
-            var condition = ifStmt.getCondition();
-            if (condition.isBinaryExpr()) {
-                BinaryExpr binary = condition.asBinaryExpr();
-                if (binary.getLeft().toString().equals("c") &&
-                        binary.getOperator() == BinaryExpr.Operator.EQUALS &&
-                        binary.getRight().toString().equals("Cell.EMPTY")) {
-                    binary.setOperator(BinaryExpr.Operator.NOT_EQUALS);
-                }
-            }
-        });
+        body.findFirst(IfStmt.class).get().getCondition().asBinaryExpr().setOperator(BinaryExpr.Operator.NOT_EQUALS);
     }
 
     public static void bugIsBoardFullCEqualsX(MethodDeclaration m) {
@@ -496,21 +448,10 @@ public class BugLibrary {
 
     // ========== Bugs for initBoard ==========
 
-    public static void bugInitBoardEmpty(MethodDeclaration m) {
-        m.setBody(new BlockStmt());
-    }
-
     public static void bugInitBoardArraySize(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(ArrayCreationExpr.class).forEach(array -> {
-            if (array.getElementType().asString().equals("Cell") &&
-                    array.getLevels().size() == 1 &&
-                    array.getLevels().get(0).getDimension().isPresent() &&
-                    array.getLevels().get(0).getDimension().get().toString().equals("9")) {
-                array.getLevels().get(0).setDimension(new IntegerLiteralExpr("3"));
-            }
-        });
+        body.findFirst(ArrayCreationExpr.class).get().getLevels().get(0).setDimension(new IntegerLiteralExpr("3"));
     }
 
 
@@ -529,17 +470,9 @@ public class BugLibrary {
     public static void bugGetState1Iteration(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(ForStmt.class).forEach(forStmt -> {
-            var compare = forStmt.getCompare().orElse(null);
-            if (compare != null && compare.isBinaryExpr()) {
-                BinaryExpr condition = compare.asBinaryExpr();
-                if (condition.getLeft().toString().equals("i") &&
-                        condition.getOperator() == BinaryExpr.Operator.LESS &&
-                        condition.getRight().toString().equals("board.length")) {
-                    condition.setRight(new IntegerLiteralExpr("1"));
-                }
-            }
-        });
+        body.findFirst(ForStmt.class).
+                get().getCompare().
+                get().asBinaryExpr().setRight(new IntegerLiteralExpr("1"));
     }
 
     public static void bugGetStateInvertXAndO(MethodDeclaration m) {
@@ -571,16 +504,7 @@ public class BugLibrary {
     public static void bugIsTerminalResultEqualsOngoing(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(ReturnStmt.class).forEach(ret -> {
-            if (ret.getExpression().isPresent() && ret.getExpression().get().isBinaryExpr()) {
-                BinaryExpr expr = ret.getExpression().get().asBinaryExpr();
-                if (expr.getOperator() == BinaryExpr.Operator.NOT_EQUALS &&
-                        expr.getLeft().toString().equals("result") &&
-                        expr.getRight().toString().equals("Result.ONGOING")) {
-                    expr.setOperator(BinaryExpr.Operator.EQUALS);
-                }
-            }
-        });
+        body.findFirst(ReturnStmt.class).get().getExpression().get().asBinaryExpr().setOperator(BinaryExpr.Operator.EQUALS);
     }
 
     public static void bugIsTerminalResultNotEqualsXWins(MethodDeclaration m) {
@@ -659,18 +583,7 @@ public class BugLibrary {
     public static void bugHasWinInvertReturnAfterIf(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(IfStmt.class).forEach(ifStmt -> {
-            if (ifStmt.getThenStmt().isReturnStmt()) {
-                ReturnStmt returnStmt = ifStmt.getThenStmt().asReturnStmt();
-                if (returnStmt.getExpression().isPresent() &&
-                        returnStmt.getExpression().get().isBooleanLiteralExpr()) {
-                    BooleanLiteralExpr boolExpr = returnStmt.getExpression().get().asBooleanLiteralExpr();
-                    if (boolExpr.getValue()) {
-                        returnStmt.setExpression(new BooleanLiteralExpr(false));
-                    }
-                }
-            }
-        });
+        body.findFirst(ReturnStmt.class).get().setExpression(new BooleanLiteralExpr(false));
     }
 
     // ========== Helper methods ==========
@@ -836,15 +749,8 @@ public class BugLibrary {
     private static void bugChangeResultEquality(MethodDeclaration m, String changeName) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(ReturnStmt.class).forEach(ret -> {
-            if (ret.getExpression().isPresent() && ret.getExpression().get().isBinaryExpr()) {
-                BinaryExpr expr = ret.getExpression().get().asBinaryExpr();
-                if (expr.getLeft().toString().equals("result") &&
-                        expr.getRight().toString().equals("Result.ONGOING")) {
-                    expr.setRight(new FieldAccessExpr(new NameExpr("Result"), changeName));
-                }
-            }
-        });
+        body.findFirst(BinaryExpr.class).
+                get().setRight(new FieldAccessExpr(new NameExpr("Result"), changeName));
     }
 
     private static void bugHasWinInvertThreeInRowAllByOneIndex(MethodDeclaration m, String index) {
@@ -877,11 +783,17 @@ public class BugLibrary {
     private static void bugCellStatusChange(MethodDeclaration m, String to) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        body.findAll(BinaryExpr.class).forEach(expr -> {
-            if (expr.getOperator() == BinaryExpr.Operator.NOT_EQUALS &&
-                    expr.getRight().toString().equals("Cell.EMPTY")) {
-                expr.setRight(new NameExpr(to));
-            }
-        });
+        body.findFirst(BinaryExpr.class).
+                get().setRight(new NameExpr(to));
+    }
+
+    private static void changeResultAssignmentTO(BlockStmt body, String variable, String value, int index) {
+        body.findAll(AssignExpr.class).
+                get(index).setValue(new FieldAccessExpr(new NameExpr(variable), value));
+    }
+
+    private static void cellChangeTo(BlockStmt body, String changeName) {
+        body.findFirst(MethodCallExpr.class).
+                get().setArgument(1, new FieldAccessExpr(new NameExpr("Cell"), changeName));
     }
 }

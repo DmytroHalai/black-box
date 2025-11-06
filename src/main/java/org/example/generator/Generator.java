@@ -10,7 +10,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 
 import static org.example.generator.BugRegistry.*;
 
@@ -34,9 +37,9 @@ public class Generator {
 
         cu.setPackageDeclaration(saveImplFolder.substring(saveImplFolder.indexOf("java") + 5).replace("/", "."));
         cu.findAll(ConstructorDeclaration.class)
-                        .forEach(constructorDeclaration -> constructorDeclaration.setName(className));
+                .forEach(constructorDeclaration -> constructorDeclaration.setName(className));
         cu.findAll(ClassOrInterfaceDeclaration.class)
-                        .forEach(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.setName(className));
+                .forEach(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.setName(className));
         makeRandomBugs(cu);
 
         try (FileWriter fw = new FileWriter(saveImplFolder + "/" + className + ".java")) {

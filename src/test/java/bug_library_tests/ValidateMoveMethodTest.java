@@ -80,7 +80,7 @@ class ValidateMoveMethodTest {
         IfStmt ifStmt = body.findFirst(IfStmt.class).orElseThrow();
         boolean cond = ifStmt.getCondition().asUnaryExpr().getOperator().equals(UnaryExpr.Operator.LOGICAL_COMPLEMENT);
 
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected isTerminal() condition to be inverted");
     }
 
     @Test
@@ -95,7 +95,7 @@ class ValidateMoveMethodTest {
         IfStmt ifStmt = body.findAll(IfStmt.class).get(1);
         boolean cond = ifStmt.getCondition().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.EQUALS);
 
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected move.player() == turn condition");
     }
 
     @Test
@@ -113,7 +113,7 @@ class ValidateMoveMethodTest {
                 getLeft().asBinaryExpr().
                 getLeft().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.GREATER);
 
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected that the move.x() < 0 condition is changed to > 0");
     }
 
     @Test
@@ -131,7 +131,7 @@ class ValidateMoveMethodTest {
                 getLeft().asBinaryExpr().
                 getRight().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.LESS);
 
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected that the move.x() > 2 condition is changed to < 2");
     }
 
     @Test
@@ -147,7 +147,7 @@ class ValidateMoveMethodTest {
         boolean cond = ifStmt.getCondition().asBinaryExpr().
                 getLeft().asBinaryExpr().
                 getRight().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.GREATER);
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected that the move.y() < 0 condition is changed to > 0");
     }
 
     @Test
@@ -162,7 +162,7 @@ class ValidateMoveMethodTest {
         IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
         boolean cond = ifStmt.getCondition().asBinaryExpr().
                 getRight().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.LESS);
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected that the move.y() > 2 condition is changed to < 2");
     }
 
     @Test
@@ -178,7 +178,7 @@ class ValidateMoveMethodTest {
         boolean cond = ifStmt.getCondition().asBinaryExpr()
                         .getLeft().asBinaryExpr()
                         .getLeft().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.AND);
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected to invert the first OR operator");
     }
 
     @Test
@@ -194,7 +194,7 @@ class ValidateMoveMethodTest {
         boolean cond = ifStmt.getCondition().asBinaryExpr()
                 .getLeft().asBinaryExpr()
                 .getOperator().equals(BinaryExpr.Operator.AND);
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected to invert the second OR operator");
     }
 
     @Test
@@ -209,7 +209,7 @@ class ValidateMoveMethodTest {
         IfStmt ifStmt = body.findAll(IfStmt.class).get(2);
         boolean cond = ifStmt.getCondition().asBinaryExpr()
                 .getOperator().equals(BinaryExpr.Operator.AND);
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected to invert the last OR operator");
     }
 
     @Test
@@ -223,7 +223,7 @@ class ValidateMoveMethodTest {
         //then
         IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
         boolean cond = ifStmt.getCondition().asBinaryExpr().getRight().asFieldAccessExpr().getName().toString().equals("EMPTY");
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected board to compare to Cell.EMPTY");
     }
 
     @Test
@@ -237,8 +237,7 @@ class ValidateMoveMethodTest {
         //then
         IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
         boolean cond = ifStmt.getCondition().asBinaryExpr().getOperator().equals(BinaryExpr.Operator.NOT_EQUALS);
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
-        //assertTrue(result.contains("if (board[idx(move.x(), move.y())] != Cell.X)"));
+        assertTrue(cond, "Expected board to use NOT_EQUALS operator");
     }
 
     @Test
@@ -253,7 +252,7 @@ class ValidateMoveMethodTest {
         IfStmt ifStmt = body.findAll(IfStmt.class).get(3);
         boolean cond = ifStmt.getCondition().asBinaryExpr().
                 getRight().asFieldAccessExpr().getName().toString().equals("O");
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected board to compare to Cell.O");
     }
 
     @Test
@@ -270,7 +269,7 @@ class ValidateMoveMethodTest {
                 getIndex().asMethodCallExpr().getArguments().get(1).asFieldAccessExpr().
                 getName().toString().equals("x()");
         System.out.println();
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected idx to use x()");
     }
 
     @Test
@@ -287,6 +286,6 @@ class ValidateMoveMethodTest {
                 getIndex().asMethodCallExpr().getArguments().get(0).asFieldAccessExpr().
                 getName().toString().equals("y()");
         System.out.println();
-        assertTrue(cond, "Expected isTerminal condition to be inverted");
+        assertTrue(cond, "Expected idx to use y()");
     }
 }

@@ -3,7 +3,7 @@ package org.example.generator;
 import java.util.*;
 
 public class BugRegistry {
-    private static final Map<String, List<BugMutation>> BUGS =  new HashMap<>();
+    private static final Map<String, List<BugMutation>> BUGS = new HashMap<>();
 
     static {
         register("threeInRow",
@@ -92,7 +92,6 @@ public class BugRegistry {
         );
 
         register("initBoard",
-                BugLibrary::bugInitBoardEmpty,
                 BugLibrary::bugInitBoardArraySize
         );
 

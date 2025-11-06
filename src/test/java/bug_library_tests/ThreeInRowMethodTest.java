@@ -321,7 +321,7 @@ class ThreeInRowMethodTest {
                 .anyMatch(outer -> outer.getRight().asUnaryExpr().getOperator().equals( UnaryExpr.Operator.LOGICAL_COMPLEMENT));
 
         assertTrue(hasReturnWithOr,
-                "Expected return statement 'isNotEmpty && !equalIJ && equalJK' not found in AST");
+                "Expected return statement 'isNotEmpty && equalIJ && !equalJK' not found in AST");
     }
 
     private void changeCellMean(MethodDeclaration m, String index, String s) {
@@ -368,16 +368,10 @@ class ThreeInRowMethodTest {
                 .anyMatch(bin -> {
                     boolean operatorIsNotEquals = bin.getOperator() == (isEqual ? BinaryExpr.Operator.EQUALS : BinaryExpr.Operator.NOT_EQUALS);
 
-                    boolean leftIsBoardI = bin.getLeft().isArrayAccessExpr()
-                            && bin.getLeft().asArrayAccessExpr().getName().isNameExpr()
-                            && bin.getLeft().asArrayAccessExpr().getName().asNameExpr().getNameAsString().equals("board")
-                            && bin.getLeft().asArrayAccessExpr().getIndex().isNameExpr()
+                    boolean leftIsBoardI = bin.getLeft().asArrayAccessExpr().getName().asNameExpr().getNameAsString().equals("board")
                             && bin.getLeft().asArrayAccessExpr().getIndex().asNameExpr().getNameAsString().equals(firstIndex);
 
-                    boolean rightIsBoardJ = bin.getRight().isArrayAccessExpr()
-                            && bin.getRight().asArrayAccessExpr().getName().isNameExpr()
-                            && bin.getRight().asArrayAccessExpr().getName().asNameExpr().getNameAsString().equals("board")
-                            && bin.getRight().asArrayAccessExpr().getIndex().isNameExpr()
+                    boolean rightIsBoardJ = bin.getRight().asArrayAccessExpr().getName().asNameExpr().getNameAsString().equals("board")
                             && bin.getRight().asArrayAccessExpr().getIndex().asNameExpr().getNameAsString().equals(secondIndex);
 
                     return operatorIsNotEquals && leftIsBoardI && rightIsBoardJ;

@@ -71,8 +71,10 @@ class GetWinnerMethodTest {
         BugLibrary.bugGetWinnerFlipWinners(m);
 
         //then
-        assertTrue(checkSwitch(m, 0, "Optional.of(Player.O);"));
-        assertTrue(checkSwitch(m, 1, "Optional.of(Player.X);"));
+        assertTrue(checkSwitch(m, 0, "Optional.of(Player.O);"),
+                "Expected first switch entry to return Optional.of(Player.O);");
+        assertTrue(checkSwitch(m, 1, "Optional.of(Player.X);"),
+                "Expected second switch entry to return Optional.of(Player.X);");
     }
 
     @Test

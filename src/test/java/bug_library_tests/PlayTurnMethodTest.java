@@ -111,10 +111,8 @@ class PlayTurnMethodTest {
         // then
         assertNotNull(body, "Expected method body to exist");
 
-        // 1. знайти всі присвоєння
         List<AssignExpr> assignments = body.findAll(AssignExpr.class);
 
-        // 2. перевірити, що є присвоєння до board[i] з умовою (turn != Player.X)
         boolean hasConditionalWithTurnNotEqual = assignments.stream().anyMatch(assign -> {
             if (!assign.getTarget().isArrayAccessExpr()) return false; // if not array left
             ArrayAccessExpr array = assign.getTarget().asArrayAccessExpr();

@@ -141,16 +141,6 @@ class SetLinesMethodTest {
 
     // the count of sub arrays is 8 after removing one of them there should be 7
     private int getNumberOfSubArrays(BlockStmt body) {
-        return body.findAll(ArrayInitializerExpr.class).get(0).getValues().size();
-    }
-
-    private void isSubArrayInArray(ArrayInitializerExpr array, ArrayInitializerExpr subArray) {
-        boolean found = false;
-        for (var value : array.getValues()) {
-            if (value.equals(subArray)) {
-                found = true;
-                break;
-            }
-        }
+        return body.findAll(ArrayInitializerExpr.class).getFirst().getValues().size();
     }
 }
