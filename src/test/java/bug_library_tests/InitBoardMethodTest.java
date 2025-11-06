@@ -37,18 +37,6 @@ class InitBoardMethodTest {
     }
 
     @Test
-    void testBugInitBoardEmpty() {
-        //given
-        BugLibrary.bugInitBoardEmpty(m);
-
-        //when
-        BlockStmt body = m.getBody().orElseThrow();
-
-        //then
-        assert(body.getStatements().isEmpty());
-    }
-
-    @Test
     void testBugInitBoardArraySize() {
         //given
         BugLibrary.bugInitBoardArraySize(m);

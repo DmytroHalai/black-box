@@ -92,7 +92,6 @@ public class BugRegistry {
         );
 
         register("initBoard",
-                BugLibrary::bugInitBoardEmpty,
                 BugLibrary::bugInitBoardArraySize
         );
 

@@ -496,10 +496,6 @@ public class BugLibrary {
 
     // ========== Bugs for initBoard ==========
 
-    public static void bugInitBoardEmpty(MethodDeclaration m) {
-        m.setBody(new BlockStmt());
-    }
-
     public static void bugInitBoardArraySize(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
