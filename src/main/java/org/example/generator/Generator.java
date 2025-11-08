@@ -36,6 +36,39 @@ public class Generator {
         }
     }
 
+    public static List<String> generateInMemory(int num, String enginePath) throws FileNotFoundException {
+        List<String> implementations = new ArrayList<>();
+        int correctIndex = random.nextInt(num);
+
+        for (int i = 0; i < num; i++) {
+            String className = "Engine" + i;
+            boolean isCorrect = (i == correctIndex);
+            implementations.add(doImplementationInMemory(enginePath, className, isCorrect));
+        }
+        return implementations;
+    }
+
+    private static String doImplementationInMemory(String enginePath, String className, boolean isCorrect)
+            throws FileNotFoundException {
+        JavaParser parser = new JavaParser();
+        CompilationUnit cu = parser.parse(new File(enginePath))
+                .getResult().orElseThrow();
+
+        cu.findAll(ConstructorDeclaration.class)
+                .forEach(c -> c.setName(className));
+        cu.findAll(ClassOrInterfaceDeclaration.class)
+                .forEach(c -> c.setName(className));
+
+        if (!isCorrect) {
+            makeRandomBugs(cu);
+            addCommentTo(cu, "that's not me");
+        } else {
+            addCommentTo(cu, "that's me");
+        }
+
+        return cu.toString();
+    }
+
     private static void doImplementation(String enginePath, String saveImplFolder, String className, boolean isCorrect) throws FileNotFoundException {
         JavaParser parser = new JavaParser();
         CompilationUnit cu = parser.parse(new File(enginePath))
