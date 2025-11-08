@@ -20,7 +20,9 @@ public class GeneratorController {
     public ResponseEntity<StreamingResponseBody> generate() {
         StreamingResponseBody body = outputStream -> {
             try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(outputStream))) {
-                List<String> impls = Generator.generateInMemory(1000, "src/main/java/org/example/Engine.java");
+                List<String> impls = Generator.generateInMemory(1000,
+                        "src/main/java/org/example/Engine.java",
+                        "src/main/java/org/example/impl");
 
                 for (int i = 0; i < impls.size(); i++) {
                     String className = "Engine" + i + ".java";
@@ -39,8 +41,6 @@ public class GeneratorController {
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"engines.zip\"");
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(body);
+        return ResponseEntity.ok().headers(headers).body(body);
     }
 }

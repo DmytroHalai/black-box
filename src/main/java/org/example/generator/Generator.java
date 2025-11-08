@@ -36,24 +36,25 @@ public class Generator {
         }
     }
 
-    public static List<String> generateInMemory(int num, String enginePath) throws FileNotFoundException {
+    public static List<String> generateInMemory(int num, String enginePath, String saveImplFolder) throws FileNotFoundException {
         List<String> implementations = new ArrayList<>();
         int correctIndex = random.nextInt(num);
 
         for (int i = 0; i < num; i++) {
             String className = "Engine" + i;
             boolean isCorrect = (i == correctIndex);
-            implementations.add(doImplementationInMemory(enginePath, className, isCorrect));
+            implementations.add(doImplementationInMemory(enginePath, saveImplFolder, className, isCorrect));
         }
         return implementations;
     }
 
-    private static String doImplementationInMemory(String enginePath, String className, boolean isCorrect)
+    private static String doImplementationInMemory(String enginePath, String saveImplFolder, String className, boolean isCorrect)
             throws FileNotFoundException {
         JavaParser parser = new JavaParser();
         CompilationUnit cu = parser.parse(new File(enginePath))
                 .getResult().orElseThrow();
 
+        cu.setPackageDeclaration(saveImplFolder.substring(saveImplFolder.indexOf("java") + 5).replace("/", "."));
         cu.findAll(ConstructorDeclaration.class)
                 .forEach(c -> c.setName(className));
         cu.findAll(ClassOrInterfaceDeclaration.class)
