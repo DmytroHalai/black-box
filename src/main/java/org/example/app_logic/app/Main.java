@@ -1,14 +1,14 @@
 package org.example.app_logic.app;
 
+import org.example.Engine;
 import org.example.app_logic.api.GameEngine;
 import org.example.app_logic.api.Move;
-import org.example.impl.Engine123;
 
 import java.util.Scanner;
 
 public final class Main {
     public static void main(String[] args) {
-        GameEngine game = new Engine123(); // зміни тут для вибору іншої реалізації
+        GameEngine game = new Engine(); // зміни тут для вибору іншої реалізації
         Scanner sc = new Scanner(System.in);
 
         System.out.println("TicTacToe — Human vs Human. Coordinates: x=0..2 y=0..2");
