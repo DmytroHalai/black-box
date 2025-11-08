@@ -2,6 +2,7 @@ package org.example.generator;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -10,10 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import static org.example.generator.BugRegistry.*;
 
@@ -50,13 +48,22 @@ public class Generator {
                 .forEach(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.setName(className));
         if (!isCorrect) {
             makeRandomBugs(cu);
+            addCommentTo(cu, "that's not me");
         }
+        if (isCorrect) addCommentTo(cu, "that's me");
 
         try (FileWriter fw = new FileWriter(saveImplFolder + "/" + className + ".java")) {
             fw.write(cu.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void addCommentTo(CompilationUnit cu, String commentText) {
+        List<Node> nodes = cu.findAll(Node.class);
+        int index = random.nextInt(nodes.size());
+        Node node = nodes.get(index);
+        node.setLineComment(commentText);
     }
 
     private static void makeRandomBugs(CompilationUnit cu) {
@@ -82,6 +89,6 @@ public class Generator {
 
     public static void main(String[] args) throws FileNotFoundException {
         String fileToSaveIn = "src/main/java/org/example/impl";
-        generate(1000, "src/main/java/org/example/Engine.java", fileToSaveIn);
+        generate(10000, "src/main/java/org/example/Engine.java", fileToSaveIn);
     }
 }
