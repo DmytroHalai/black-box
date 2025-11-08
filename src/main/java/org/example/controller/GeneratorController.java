@@ -1,4 +1,4 @@
-package org.example.web;
+package org.example.controller;
 
 import org.example.generator.Generator;
 import org.springframework.http.HttpHeaders;
@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -18,7 +17,7 @@ import java.util.zip.ZipOutputStream;
 public class GeneratorController {
 
     @GetMapping("/generate")
-    public ResponseEntity<StreamingResponseBody> generate() throws IOException {
+    public ResponseEntity<StreamingResponseBody> generate() {
         StreamingResponseBody body = outputStream -> {
             try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(outputStream))) {
                 List<String> impls = Generator.generateInMemory(1000, "src/main/java/org/example/Engine.java");
