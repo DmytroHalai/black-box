@@ -62,23 +62,32 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
-                <configuration>
-                    <mainClass>game_tests.EngineRunner</mainClass>
-                    <classpathScope>test</classpathScope>
-                </configuration>
+
                 <executions>
                     <execution>
                         <id>run-all-engines</id>
+                        <phase>test-compile</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
-                        <phase>test-compile</phase>
+                        <configuration>
+                            <mainClass>game.EngineRunner</mainClass>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.example.generator.Generator</mainClass>
+                            <classpathScope>compile</classpathScope>
+                        </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
