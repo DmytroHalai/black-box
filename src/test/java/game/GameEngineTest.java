@@ -26,6 +26,7 @@ class GameEngineTest {
      шляхом покриття роботи головного "двигуна" гри юніт-тестами.
      */
 
+    //begin of private
     @Test
     void resetTestCheckArrayFill() {
         engine.reset();
@@ -210,4 +211,5 @@ class GameEngineTest {
         assertEquals(Result.X_WINS, engine.getResult(),
                 "Очікувався результат X_WINS після виграшного ходу X");
     }
+    //end of private
 }
