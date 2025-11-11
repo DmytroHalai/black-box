@@ -1,6 +1,6 @@
-package org.example.app_logic.core;
+package org.example.logic.core;
 
-import org.example.app_logic.api.BoardView;
+import org.example.logic.api.BoardView;
 
 import java.util.Arrays;
 

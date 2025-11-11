@@ -1,7 +1,7 @@
-package game_tests;
+package game;
 
-import org.example.app_logic.api.*;
-import org.example.test_runner.GameEngineFactory;
+import org.example.logic.api.*;
+import org.example.runner.GameEngineFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EngineTest {
+class GameEngineTest {
     private GameEngine engine;
 
     @BeforeEach

@@ -1,10 +1,10 @@
-package bug_library_tests;
+package buglibrary;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ReturnStmt;
 import org.example.generator.BugLibrary;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class InitBoardMethodTest {
+class TurnMethodTest {
     MethodDeclaration m;
 
     private MethodDeclaration parseMethod(String code) {
@@ -24,9 +24,9 @@ class InitBoardMethodTest {
     void setup() {
         String code = """
                 class Test {
-                      public void initBoard() {
-                          board = new Cell[9];
-                      }
+                   public Player turn() {
+                      return turn;
+                   }
                 }
                 """;
         m = parseMethod(code);
@@ -39,18 +39,31 @@ class InitBoardMethodTest {
     }
 
     @Test
-    void testBugInitBoardArraySize() {
+    void testBugTurnAlwaysX() {
         //given
-        BugLibrary.bugInitBoardArraySize(m);
+        BugLibrary.bugTurnAlwaysX(m);
 
+        //then
+        assertTheReturnIs(m, "Player.X");
+    }
+
+    @Test
+    void testBugTurnAlwaysO() {
+        //given
+        BugLibrary.bugTurnAlwaysO(m);
+
+        //then
+        assertTheReturnIs(m, "Player.O");
+    }
+
+    private void assertTheReturnIs(MethodDeclaration m, String s) {
         //when
         BlockStmt body = m.getBody().orElseThrow();
 
         //then
-        boolean cond = body.findAll(AssignExpr.class).get(0).
-                getValue().asArrayCreationExpr().getLevels().
-                get(0).getDimension().
-                get().toString().equals("3");
-        assertTrue(cond, "Expected board to be initialized with size 3");
+        boolean cond = body.findAll(ReturnStmt.class).
+                get(0).getExpression().
+                get().toString().equals(s);
+        assertTrue(cond, "Expected that the return will be " + s);
     }
 }

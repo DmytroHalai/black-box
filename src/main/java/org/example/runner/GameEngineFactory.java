@@ -1,6 +1,6 @@
-package org.example.test_runner;
+package org.example.runner;
 
-import org.example.app_logic.api.GameEngine;
+import org.example.logic.api.GameEngine;
 import org.reflections.Reflections;
 
 import java.util.List;

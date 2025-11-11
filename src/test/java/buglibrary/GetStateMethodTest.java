@@ -1,4 +1,4 @@
-package bug_library_tests;
+package buglibrary;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.ArrayCreationLevel;

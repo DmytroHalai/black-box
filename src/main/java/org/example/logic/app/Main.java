@@ -1,8 +1,8 @@
-package org.example.app_logic.app;
+package org.example.logic.app;
 
 import org.example.Engine;
-import org.example.app_logic.api.GameEngine;
-import org.example.app_logic.api.Move;
+import org.example.logic.api.GameEngine;
+import org.example.logic.api.Move;
 
 import java.util.Scanner;
 

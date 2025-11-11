@@ -1,4 +1,4 @@
-package org.example.app_logic.api;
+package org.example.logic.api;
 
 public class IllegalMoveException extends RuntimeException {
     /**
