@@ -58,6 +58,7 @@
 
     <build>
         <plugins>
+            <!-- 🧩 1. EngineRunner при тестах -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
