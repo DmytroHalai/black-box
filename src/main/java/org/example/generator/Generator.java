@@ -115,6 +115,6 @@ public class Generator {
 
     public static void main(String[] args) throws FileNotFoundException {
         String fileToSaveIn = "src/main/java/org/example/impl";
-        generate(5, "src/main/java/org/example/Engine.java", fileToSaveIn);
+        generate(1000, "src/main/java/org/example/Engine.java", fileToSaveIn);
     }
 }

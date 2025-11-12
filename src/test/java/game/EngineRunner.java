@@ -1,4 +1,3 @@
-// src/test/java/game_tests/EngineRunner.java
 package game;
 
 import org.example.runner.GameEngineFactory;
