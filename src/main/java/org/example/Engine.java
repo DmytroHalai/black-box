@@ -1,12 +1,12 @@
 package org.example;
 
-import org.example.app_logic.api.*;
-import org.example.app_logic.core.BoardState;
+import org.example.logic.api.*;
+import org.example.logic.core.BoardState;
 
 import java.util.Arrays;
 import java.util.Optional;
 
-import static org.example.app_logic.api.View.idx;
+import static org.example.logic.api.View.idx;
 
 public final class Engine extends GameEngine {
     public Engine() {
