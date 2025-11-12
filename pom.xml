@@ -79,7 +79,7 @@
 
                     <execution>
                         <id>generate</id>
-                        <phase>generate-sources</phase>
+                        <phase>none</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
@@ -88,6 +88,22 @@
                             <classpathScope>compile</classpathScope>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>copy</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.example.utils.SourceCopier</mainClass>
+                            <classpathScope>compile</classpathScope>
+                            <arguments>
+                                <argument>${targetPath}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
                 </executions>
             </plugin>
         </plugins>

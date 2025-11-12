@@ -3,13 +3,14 @@ package game;
 import org.example.logic.api.*;
 import org.example.runner.GameEngineFactory;
 import org.junit.jupiter.api.BeforeEach;
+//begin of private
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+//end of private
 class GameEngineTest {
     private GameEngine engine;
 
@@ -26,6 +27,7 @@ class GameEngineTest {
      шляхом покриття роботи головного "двигуна" гри юніт-тестами.
      */
 
+    //begin of private
     @Test
     void resetTestCheckArrayFill() {
         engine.reset();
@@ -210,4 +212,5 @@ class GameEngineTest {
         assertEquals(Result.X_WINS, engine.getResult(),
                 "Очікувався результат X_WINS після виграшного ходу X");
     }
+    //end of private
 }
