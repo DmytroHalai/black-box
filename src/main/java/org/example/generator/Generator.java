@@ -2,10 +2,10 @@ package org.example.generator;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import org.example.web.model.ImplementationBatch;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,34 +36,36 @@ public class Generator {
         }
     }
 
-    public static List<String> generateInMemory(int num, String enginePath) throws FileNotFoundException {
+    public static ImplementationBatch generateInMemory(int num, String enginePath, String saveImplFolder) throws FileNotFoundException {
+        ImplementationBatch batch = new ImplementationBatch();
+
         List<String> implementations = new ArrayList<>();
         int correctIndex = random.nextInt(num);
 
         for (int i = 0; i < num; i++) {
             String className = "Engine" + i;
             boolean isCorrect = (i == correctIndex);
-            implementations.add(doImplementationInMemory(enginePath, className, isCorrect));
+            implementations.add(doImplementationInMemory(enginePath,saveImplFolder, className, isCorrect));
         }
-        return implementations;
+        batch.setImplementations(implementations);
+        batch.setCorrectImplementation(correctIndex);
+        return batch;
     }
 
-    private static String doImplementationInMemory(String enginePath, String className, boolean isCorrect)
+    private static String doImplementationInMemory(String enginePath, String saveImplFolder, String className, boolean isCorrect)
             throws FileNotFoundException {
         JavaParser parser = new JavaParser();
         CompilationUnit cu = parser.parse(new File(enginePath))
                 .getResult().orElseThrow();
 
+        cu.setPackageDeclaration(saveImplFolder.substring(saveImplFolder.indexOf("java") + 5).replace("/", "."));
         cu.findAll(ConstructorDeclaration.class)
-                .forEach(c -> c.setName(className));
+                .forEach(constructorDeclaration -> constructorDeclaration.setName(className));
         cu.findAll(ClassOrInterfaceDeclaration.class)
-                .forEach(c -> c.setName(className));
+                .forEach(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.setName(className));
 
         if (!isCorrect) {
             makeRandomBugs(cu);
-            addCommentTo(cu, "that's not me");
-        } else {
-            addCommentTo(cu, "that's me");
         }
 
         return cu.toString();
@@ -81,22 +83,13 @@ public class Generator {
                 .forEach(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.setName(className));
         if (!isCorrect) {
             makeRandomBugs(cu);
-            addCommentTo(cu, "that's not me");
         }
-        if (isCorrect) addCommentTo(cu, "that's me");
 
         try (FileWriter fw = new FileWriter(saveImplFolder + "/" + className + ".java")) {
             fw.write(cu.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static void addCommentTo(CompilationUnit cu, String commentText) {
-        List<Node> nodes = cu.findAll(Node.class);
-        int index = random.nextInt(nodes.size());
-        Node node = nodes.get(index);
-        node.setLineComment(commentText);
     }
 
     private static void makeRandomBugs(CompilationUnit cu) {
@@ -122,6 +115,6 @@ public class Generator {
 
     public static void main(String[] args) throws FileNotFoundException {
         String fileToSaveIn = "src/main/java/org/example/impl";
-        generate(10000, "src/main/java/org/example/Engine.java", fileToSaveIn);
+        generate(5, "src/main/java/org/example/Engine.java", fileToSaveIn);
     }
 }
