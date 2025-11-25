@@ -1,3 +1,5 @@
+package org.example.generator;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;

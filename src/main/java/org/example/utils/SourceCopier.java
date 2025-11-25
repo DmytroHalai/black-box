@@ -31,7 +31,7 @@ public class SourceCopier {
         List<Path> itemsToCopy = List.of(
                 srcMain.resolve("org/example/logic"),
                 srcMain.resolve("org/example/runner"),
-                srcTest.resolve("game")
+                srcTest.resolve("org/example/logic/api")
         );
 
         for (Path source : itemsToCopy) {
