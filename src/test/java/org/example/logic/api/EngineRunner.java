@@ -1,4 +1,4 @@
-package game;
+package org.example.logic.api;
 
 import org.example.runner.GameEngineFactory;
 import org.junit.platform.engine.TestExecutionResult;

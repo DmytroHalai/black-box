@@ -72,7 +72,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>game.EngineRunner</mainClass>
+                            <mainClass>org.example.logic.api.EngineRunner</mainClass>
                             <classpathScope>test</classpathScope>
                         </configuration>
                     </execution>
