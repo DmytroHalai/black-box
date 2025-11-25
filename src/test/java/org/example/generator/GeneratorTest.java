@@ -1,5 +1,6 @@
 package org.example.generator;
 
+import org.example.web.model.ImplementationBatch;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,6 +54,42 @@ class GeneratorTest {
 
         assertEquals(num, javaFiles.size(),
                 "Number of generated .java files must be equal to num");
+    }
+
+    @Test
+    void testGenerateInMemory_returnsBatchWithCorrectSizeAndClassNames() throws Exception {
+        int num = 20;
+
+        ImplementationBatch batch = Generator.generateInMemory(
+                num,
+                ENGINE_PATH.toString(),
+                OUTPUT_DIR.toString()
+        );
+
+        assertNotNull(batch, "Batch must not be null");
+
+        List<String> implementations = batch.getImplementations();
+        assertNotNull(implementations, "Implementations list must not be null");
+        assertEquals(num, implementations.size(),
+                "Implementations list size must be equal to num");
+
+        int correctIndex = batch.getCorrectImplementation();
+        assertTrue(correctIndex >= 0 && correctIndex < num,
+                "Correct implementation index must be within [0, num)");
+
+        String expectedPackageLine = "package org.example.testengines;";
+
+        for (int i = 0; i < num; i++) {
+            String impl = implementations.get(i);
+            assertNotNull(impl, "Implementation source must not be null for index " + i);
+
+            assertTrue(impl.contains(expectedPackageLine),
+                    "Implementation " + i + " must contain correct package declaration");
+
+            String classRegex = "class\\s+Engine" + i + "\\b";
+            assertTrue(Pattern.compile(classRegex).matcher(impl).find(),
+                    "Implementation " + i + " must contain class Engine" + i);
+        }
     }
 
     private void deleteRecursively(Path root) throws IOException {
