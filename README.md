@@ -65,6 +65,7 @@ The Test Runner executes the student’s tests from
 `src/test/java/org/example/logic/api/GameEngineTest.java`  
 against each generated implementation (1000 total).  
 All tests must target the `GameEngine` abstraction.
+The results of passing tests are printed in file tests_summary in project source root.
 
 
 ## 4. Copy Utility
