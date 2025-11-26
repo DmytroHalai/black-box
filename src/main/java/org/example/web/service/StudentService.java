@@ -11,7 +11,11 @@ import java.util.List;
 
 @Service
 public class StudentService {
-    StudentRepository studentRepository = new StudentRepository();
+    StudentRepository studentRepository;
+
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     public Student findByName(String studentName) throws IOException {
         return studentRepository.getStudent(studentName);
