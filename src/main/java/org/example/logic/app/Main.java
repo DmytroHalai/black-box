@@ -1,6 +1,5 @@
 package org.example.logic.app;
 
-import org.example.Engine;
 import org.example.logic.api.GameEngine;
 import org.example.logic.api.Move;
 
