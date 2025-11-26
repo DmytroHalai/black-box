@@ -36,6 +36,7 @@
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
@@ -54,7 +55,23 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>3.3.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>3.3.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
+
 
     <build>
         <plugins>
@@ -84,7 +101,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>org.example.generator.Generator</mainClass>
+                            <mainClass>org.example.generator.GeneratorTest</mainClass>
                             <classpathScope>compile</classpathScope>
                         </configuration>
                     </execution>
