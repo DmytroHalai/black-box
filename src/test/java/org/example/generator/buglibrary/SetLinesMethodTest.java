@@ -1,4 +1,4 @@
-package buglibrary;
+package org.example.generator.buglibrary;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -56,7 +56,6 @@ class SetLinesMethodTest {
     void testBugSetLinesRemoveSecondDiagonal() {
         //given
         BugLibrary.bugSetLinesRemoveSecondDiagonal(m);
-        System.out.println(m);
 
         //then
         // the count of sub arrays is 8 after removing one of them there should be 7
@@ -67,7 +66,6 @@ class SetLinesMethodTest {
     void testBugSetLinesRemoveThirdDiagonal() {
         //given
         BugLibrary.bugSetLinesRemoveThirdDiagonal(m);
-        System.out.println(m);
 
         //then
         // the count of sub arrays is 8 after removing one of them there should be 7
@@ -78,7 +76,6 @@ class SetLinesMethodTest {
     void testBugSetLinesRemoveForthDiagonal() {
         //given
         BugLibrary.bugSetLinesRemoveForthDiagonal(m);
-        System.out.println(m);
 
         //then
         // the count of sub arrays is 8 after removing one of them there should be 7
@@ -89,7 +86,6 @@ class SetLinesMethodTest {
     void testBugSetLinesRemoveFifthDiagonal() {
         //given
         BugLibrary.bugSetLinesRemoveFifthDiagonal(m);
-        System.out.println(m);
 
         //then
         // the count of sub arrays is 8 after removing one of them there should be 7
@@ -100,7 +96,6 @@ class SetLinesMethodTest {
     void testBugSetLinesRemoveSixthDiagonal() {
         //given
         BugLibrary.bugSetLinesRemoveSixthDiagonal(m);
-        System.out.println(m);
 
         //then
         // the count of sub arrays is 8 after removing one of them there should be 7
@@ -111,7 +106,6 @@ class SetLinesMethodTest {
     void testBugSetLinesRemoveSeventhDiagonal() {
         //given
         BugLibrary.bugSetLinesRemoveSeventhDiagonal(m);
-        System.out.println(m);
 
         //then
         // the count of sub arrays is 8 after removing one of them there should be 7
@@ -122,7 +116,6 @@ class SetLinesMethodTest {
     void testBugSetLinesRemoveEighthDiagonal() {
         //given
         BugLibrary.bugSetLinesRemoveEighthDiagonal(m);
-        System.out.println(m);
 
         //then
         // the count of sub arrays is 8 after removing one of them there should be 7

@@ -1,4 +1,4 @@
-package buglibrary;
+package org.example.generator.buglibrary;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;

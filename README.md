@@ -1,135 +1,140 @@
-# 🧩 Project Overview
+# Project Overview
 
-Проєкт складається з кількох основних частин:
+The project consists of several independent but connected modules:
 
-- **Game (гра)**
-- **Generator (генератор імплементацій)**
-- **Test Runner (раннер тестів)**
-- **Copy Utility (утиліта для копіювання проєкту)**
-- **Web Application (веб-застосунок із JSON-базою даних)**
-- **Tests (на генератор, гру та е2е-тести)**
+- **Game**
+- **Generator of implementations**
+- **Test Runner**
+- **Copy Utility**
+- **Web Application**
+- **Tests**
 
----
 
-## 🎮 1. Game
+## 1. Game
 
-Модуль гри має таку структуру:
+### Structure
 
-![Game structure](https://github.com/user-attachments/assets/dd4338fc-69b5-4a09-b919-d87a5a6716a5)
+#### Root (`src/main/java/org/example`)
+- `Engine.java` - is the concrete Tic-Tac-Toe game engine that implements all abstract GameEngine logic: initializing the board,validating and applying moves, switching turns, tracking win/draw states, and reporting the current board and winner.
 
-- Студент має **повний доступ** до цього фолдеру.  
-- Усі імплементації генеруються на основі класу **`Engine`**, який винесений окремо в корінь проєкту.  
-- Тести пишуться на клас-предок **`GameEngine`**.  
-- Для зручності підготовлено **детальну документацію**.
+#### `src/main/java/org/example/logic/api`
+- `BoardView` - defines an interface for accessing and printing the current 3×3 state of a Tic-Tac-Toe board.
+- `GameEngine` - is an abstract base class that defines the full game logic contract for Tic-Tac-Toe (board state, turns, move validation, win/draw detection and helpers), which concrete engine implementations must realize.
+- `IllegalMoveException` - represents an error thrown when a player attempts an invalid or rule-breaking move in the game.
+- `Move` - is a simple immutable record that represents a single action in the game, storing the x-coordinate, y-coordinate, and the player making the move.
+- `Player` - is an enum representing the two Tic-Tac-Toe players, X and O, and provides a helper method to switch between them.
+- `Result` - is an enum representing the current game outcome: ongoing, X wins, O wins, or draw.
+- `View` - is an immutable snapshot of the board that implements BoardView, mapping the engine’s internal 3×3 cell array to readable characters ('X', 'O', or ' ').
 
----
+#### `src/main/java/org/example/logic/app`
+- `Main` - is a simple console launcher that runs a human-vs-human Tic-Tac-Toe game using a chosen `GameEngine` implementation.
 
-## ⚙️ 2. Generator
+#### `src/main/java/org/example/logic/core`
+- `BoardState` - is an immutable snapshot of the board that implements BoardView, internally storing a 3×3 grid as a cloned 9-cell array and providing safe read-only access to it.
 
-![Generator structure](https://github.com/user-attachments/assets/0667d519-130a-4e2f-bef0-53514268f959)
+Students have full access to this module.  
+All generated implementations are based on the `Engine` class located in the project root.  
+Tests must target the abstract API defined by `GameEngine`.  
+All parts of the game module are documented.
 
-Компоненти:
 
-- **`BugLibrary`** — містить методи для генерації багів у кожному методі гри.  
-- **`BugMutation`** — реалізує метод `apply()`, який застосовує баги до імплементації.  
-- **`BugRegistry`** — зберігає всі баги у мапі.  
-- **`Generator`** — основна логіка генерації імплементацій з багами. Алгоритм побудований так, щоб:
-  - уникати дублювання імплементацій;
-  - запобігати ситуаціям, коли баг «виправляє» інший баг.
+## 2. Generator
 
----
+The generator produces mutated implementations of the engine. Mutations represent typical programming mistakes and are applied using JavaParser.
 
-## 🧪 3. Test Runner
+- `BugLibrary` — defines available bug patterns  
+- `BugMutation` — interface for applying an individual mutation  
+- `BugRegistry` — registry storing mutation implementations  
+- `Generator` — generates mutated implementation files and ensures that:
+  - implementations are not duplicated  
+  - mutations do not accidentally neutralize each other  
 
-![Test Runner structure](https://github.com/user-attachments/assets/a9dc3f81-ebdf-4f32-8388-715007e76e66)
+Tests for the generator are located in:  
+`src/test/java/org/example/generator`
 
-Реалізує запуск тестів, написаних студентом у файлі **`game/GameEngineTest`**, для визначення правильної імплементації гри.
+The end-to-end test:
+1. Generates 1000 implementations in a temporary folder  
+2. Executes the provided test suite  
+3. Identifies the correct implementation  
+4. Verifies that all mutation strategies behave as expected  
 
----
 
-## 🗂️ 4. Copy Utility
+## 3. Test Runner
 
-![Copy Utility structure](https://github.com/user-attachments/assets/be098177-01e4-473a-98b4-be55356c032b)
+The Test Runner executes the student’s tests from  
+`src/test/java/org/example/logic/api/GameEngineTest.java`  
+against each generated implementation (1000 total).  
+All tests must target the `GameEngine` abstraction.
 
-Інструмент для копіювання структури проєкту.
 
-- Копіює файли з директорій:
-  - `src/main/java/org/example/logic`
-  - `src/main/java/org/example/runner`
-  - `src/test/java/game`
-- Частини коду, позначені між коментарями  
-  `//begin of private` … `//end of private`, **не копіюються**.
-- ⚠️ **Важливо:** утиліта **не копіює `pom.xml`**!
+## 4. Copy Utility
 
----
+The Copy Utility transfers selected files (game logic, test runner, test class, `pom.xml`, `README.md`) into another project.  
+It simplifies updates to student repositories and eliminates manual copying mistakes.
 
-## 🌐 5. Web Application
+Sections of code surrounded by:
 
-![Web structure](https://github.com/user-attachments/assets/8c3e1fbc-b9eb-4dcb-89dc-471e1956f321)
+```java
+//begin of private
+...
+//end of private
+```
 
-Веб-частина взаємодіє зі студентом і зберігає дані у JSON-базі.
+are not copied.  
+This prevents internal reference logic (for example, full test suites) from being exposed in student repositories.
 
-### Основні ендпоінти `AppController`
 
-| Endpoint | Опис |
-|-----------|------|
-| **`/generate/studentData`** | Генерує `.zip` із 1000 імплементацій, записує студента у БД. Якщо студент існує — помилка; якщо `studentData` некоректне — 400. |
-| **`/check/{studentData}/{num}`** | Перевіряє, чи правильну імплементацію подав студент. `studentData` — унікальний ID. Записує у БД час перевірки та результат. |
-| **`/all/active/admin`** | Повертає студентів, які вже робили хоча б одну перевірку. |
-| **`/all/solved/admin`** | Повертає студентів, які вже здали правильну імплементацію. |
-| **`/all/admin`** | Повертає всіх студентів, які отримали імплементації. |
+## 5. Web Application
 
-### Додаткові компоненти
+The web module interacts with students, generates implementations, and stores all data in a JSON-based datastore.
 
-- **Error Handler** — показує у браузері текст помилки замість HTTP-коду.  
-- **Models:**
-  - `CheckResult` — зберігає timestamp та результат перевірки.  
-  - `Student` — ентіті студента (`name`, `num`, список `CheckResult`).  
-  - `ImplementationBatch` — DTO, що передає список імплементацій та індекс правильної.  
-- **Repository:**
-  - `JsonRepo` — працює з JSON-файлом як із БД.  
-  - `StudentRepo` — взаємодіє між json repo та сервісом.  
-- **Service:** реалізує бізнес-логіку веб-частини.
+### Main Endpoints (`AppController`)
 
----
+| Endpoint | Description |
+|---------|-------------|
+| `/generate/{studentData}` | Generates a `.zip` archive with 1000 implementations. Saves student data. Returns errors for duplicates or invalid input. |
+| `/check/{studentData}/{num}` | Checks if the provided number matches the correct implementation. Stores each check. |
+| `/all/active/admin` | Returns students who performed at least one check. |
+| `/all/solved/admin` | Returns students who successfully identified the correct implementation. |
+| `/all/admin` | Returns all students who received implementations. |
 
-## 🧾 6. Generator Tests
+### Components
 
-![Generator tests](https://github.com/user-attachments/assets/69a836d4-0b54-4f56-8628-4194ee61d5d9)
+**Error Handler**  
+Handles exceptions and returns consistent error responses.
 
-Перевіряють коректність роботи усіх методів із класу **`BugLibrary`**.
+**Models**
+- `CheckResult` — timestamp and result of a single check  
+- `Student` — entity containing student data (`name`, `num`, `checkResults`)  
+- `ImplementationBatch` — DTO containing generated implementations and index of the correct one  
 
----
+**Repository**
+- `JsonRepo` — JSON file–based storage  
+- `StudentRepo` — service-level wrapper around JSON storage  
 
-## 🔄 7. End-to-End Test
+**Service**  
+Implements the business logic of the web API.
 
-E2E тест моделює повну поведінку системи:
-- створює імплементації,
-- запускає тест-раннер,
-- перевіряє файл `test_summary.txt` на кількість згенерованих рядків(має бути 1, лише 1 правильна імплементація).
 
----
+## Shell Scripts (Maven)
 
-## 🧠 8. Game Tests
+| Description | Command |
+|------------|---------|
+| Run all tests against all implementations | `mvn exec:java@run-tests` |
+| Generate 1000 implementations | `mvn exec:java@generate` |
+| Copy files to another project | `mvn exec:java@copy -DtargetPath={project_root}` |
 
-Містять:
-- **тест-раннер** для правильної імплементації;
-- **набір тестів** на усі можливі типи багів — демонструють, що саме тестами можна виявити правильну реалізацію.
+`targetPath` must be the absolute path to a project root.
 
----
 
-## 🧰 Shell Scripts
+## Database Example
 
-| Опис | Команда |
-|------|----------|
-| 🔹 Запуск усіх тестів | `mvn exec:java@run-tests` |
-| 🔹 Генерація 1000 імплементацій локально | `mvn exec:java@generate` |
-| 🔹 Копіювання проєкту (без `pom.xml`) | `mvn exec:java@copy -DtargetPath={path_to_project_root}` |
-
-> ⚠️ **Важливо:** `targetPath` повинен вказувати на корінь нового проєкту без додаткових символів.
-
----
-
-## 🗃️ Database Example
-
-![Database example](https://github.com/user-attachments/assets/435874e7-d0f5-4d8d-b9b9-db1ef4e724c9)
+```json
+[
+  {
+    "name": "Test",
+    "correctImpl": 968,
+    "checkResults": []
+  }
+]
+```

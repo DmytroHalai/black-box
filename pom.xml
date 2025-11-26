@@ -36,6 +36,7 @@
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
@@ -47,6 +48,20 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.20.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>4.0.0-M1</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Spring Boot Starter Web -->
         <dependency>
@@ -54,7 +69,23 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>3.3.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>3.3.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
+
 
     <build>
         <plugins>
@@ -72,7 +103,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>game.EngineRunner</mainClass>
+                            <mainClass>org.example.logic.api.EngineRunner</mainClass>
                             <classpathScope>test</classpathScope>
                         </configuration>
                     </execution>
