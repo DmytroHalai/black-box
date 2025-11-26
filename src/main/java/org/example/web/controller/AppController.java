@@ -1,10 +1,11 @@
 package org.example.web.controller;
 
 import org.example.generator.Generator;
-import org.example.web.model.ImplementationBatch;
 import org.example.web.model.CheckResult;
+import org.example.web.model.ImplementationBatch;
 import org.example.web.model.Student;
 import org.example.web.service.StudentService;
+import org.example.web.utils.Message;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,7 +25,11 @@ import java.util.zip.ZipOutputStream;
 
 @RestController
 public class AppController {
-    StudentService studentService = new StudentService();
+    StudentService studentService;
+
+    public AppController(StudentService studentService) {
+        this.studentService = studentService;
+    }
 
     @GetMapping("/generate/{studentData}")
     public ResponseEntity<StreamingResponseBody> generate(@PathVariable("studentData") String studentData) throws IOException {
@@ -70,18 +75,23 @@ public class AppController {
     public ResponseEntity<String> check(
             @PathVariable("studentData") String studentData,
             @PathVariable("implNum") String implNum) throws IOException {
+        if (studentData == null || studentData.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter valid data");
+        } else if (studentData.length() > 100) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter valid data");
+        } else if (!implNum.matches("-?\\d+")) // all the nums, but with any other symbols
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter valid number");
+        else if (!studentService.isStudentExist(studentData))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Student does not exist");
 
         Student studentInfo = studentService.findByName(studentData);
-        if (studentInfo == null) {
-            return ResponseEntity.notFound().build();
-        }
 
         boolean correct = studentInfo.getCorrectImpl() == Integer.parseInt(implNum);
         studentInfo.addCheckResult(new CheckResult(LocalDateTime.now(), correct));
 
         studentService.updateStudent(studentInfo);
 
-        return ResponseEntity.ok().body(correct ? "That's right! Well done!" : "Try again!!");
+        return ResponseEntity.ok().body(correct ? Message.DONE.getText() : Message.WRONG.getText());
     }
 
     @GetMapping("/all/active/admin")
