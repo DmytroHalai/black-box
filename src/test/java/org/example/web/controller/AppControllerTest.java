@@ -1,23 +1,35 @@
 package org.example.web.controller;
 
+import org.example.generator.Generator;
 import org.example.web.model.CheckResult;
+import org.example.web.model.ImplementationBatch;
 import org.example.web.model.Student;
 import org.example.web.service.StudentService;
 import org.example.web.utils.Message;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = AppController.class)
@@ -161,6 +173,40 @@ class AppControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void generate_createsZipWithImplementations_andSavesStudent() throws Exception {
+        ImplementationBatch mockBatch = mock(ImplementationBatch.class);
+        when(mockBatch.getImplementations()).thenReturn(
+                List.of(
+                        "public class Engine0 {}",
+                        "public class Engine1 {}"
+                )
+        );
+        when(mockBatch.getCorrectImplementation()).thenReturn(42);
+
+        try (MockedStatic<Generator> generatorMock = Mockito.mockStatic(Generator.class)) {
+            generatorMock.when(() -> Generator.generateInMemory(
+                    anyInt(),
+                    anyString(),
+                    anyString()
+            )).thenReturn(mockBatch);
+
+            when(studentService.isStudentExist("John")).thenReturn(false);
+
+            MvcResult mvcResult = mockMvc.perform(get("/generate/John"))
+                    .andExpect(request().asyncStarted())  // ← важливо!
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(mvcResult))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                    .andExpect(result -> {
+                        byte[] contentAsBytes = result.getResponse().getContentAsByteArray();
+                        assertThat(contentAsBytes).startsWith(new byte[]{80, 75});
+                    });
+        }
     }
 
     private List<Student> init() {
