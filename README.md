@@ -9,6 +9,100 @@ The project consists of several independent but connected modules:
 - **Web Application**
 - **Tests**
 
+## Goal of the project
+The project is an educational platform designed to help students learn how to write strong, production-like tests against a black-box API.
+It generates 999 mutated + 1 correct implementations of the same Tic-Tac-Toe engine and asks students to identify the single correct implementation using only their tests.
+The system also tracks each student’s attempts and progress, allowing instructors to analyse how effectively students design and improve their test suites.
+
+## Tech stack & requirements
+
+- Java / JDK 21+
+- Maven 3.9+
+- Spring Boot (REST API)
+- JUnit 5 (testing)
+- Mockito (mocking)
+- JSON file–based storage (file as db)
+
+## Quick start (local setup)
+
+This section shows how to run the project locally from a clean checkout.
+
+**Prerequisites**
+
+- Java / JDK 21+ installed
+- Maven installed and available on `PATH`
+
+**1. Clone the repository**
+
+```bash
+git clone https://github.com/DmytroHalai/black-box
+cd black-box
+```
+This downloads the project and moves you into the project directory.
+
+2. Build the project and run unit tests
+
+This command runs e2e test, which generates and runs test-runner, but it doesn't run unit tests for game by itself
+```
+mvn clean install
+```
+
+Maven will download all dependencies, compile the code, and run the test suite.
+You should see BUILD SUCCESS at the end.
+
+3. Generate 1000 engine implementations
+```
+mvn exec:java@generate
+```
+
+This command creates 1000 mutated implementations of the Tic-Tac-Toe engine in the configured output directory.
+
+4. Run all tests against all implementations
+
+If you've generated new implementations and want to test them, you have to run command below
+```
+mvn test-compile && mvn exec:java@run-tests
+```
+
+But if don't, you may just run this command
+```
+mvn exec:java@run-tests
+```
+
+This runs the student test suite against all 1000 implementations and writes the summary to the tests_summary file in the project root.
+tests_summary file  includes all the implementations, which passed all tests. If this file includes only 1 implementation, then the task is solved.
+
+5. (Optional) Copy core files to another project
+```
+mvn exec:java@copy -DtargetPath=/absolute/path/to/student/project
+```
+
+This copies the game logic, test runner, test class, student's pom.xml and README.md into a student’s project, excluding all sections marked between //begin of private and //end of private.
+
+## Running the web application
+
+The web module exposes a REST API for generating implementation batches and tracking student progress.
+
+### Start the application
+
+From the project root, run:
+
+```bash
+mvn spring-boot:run
+```
+This starts the Spring Boot application.
+By default, the API is available at:
+`
+http://localhost:8080
+`
+
+Configuration
+
+The main configuration file is located at:
+
+src/main/resources/application.properties
+
+The web application uses a JSON file as a simple datastore for students. This file is automatically creates during application launch if it didn't exist.
 
 ## 1. Game
 
