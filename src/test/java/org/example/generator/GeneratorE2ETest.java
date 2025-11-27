@@ -19,7 +19,7 @@ class GeneratorE2ETest {
         Files.deleteIfExists(summaryFile);
 
         runCommand("mvn exec:java@generate");
-        runCommand("mvn exec:java@run-tests");
+        runCommand("mvn test-compile && mvn exec:java@run-tests");
 
         assertTrue(Files.exists(summaryFile), "Summary file does not exist");
         assertEquals(1, Files.readAllLines(summaryFile).size(), "There should be exactly one correct implementation");
