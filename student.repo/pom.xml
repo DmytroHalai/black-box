@@ -45,12 +45,12 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>game_tests.EngineRunner</mainClass>
+                    <mainClass>logic.api.EngineRunner</mainClass>
                     <classpathScope>test</classpathScope>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>run-all-engines</id>
+                        <id>run-tests</id>
                         <goals>
                             <goal>java</goal>
                         </goals>
