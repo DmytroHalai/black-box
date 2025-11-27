@@ -19,12 +19,10 @@ public class JsonRepository<T> {
         this.file = new File(filePath);
         this.typeRef = typeRef;
 
-        // 🔹 Реєструємо підтримку LocalDateTime
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
-        // 🔹 Ініціалізуємо порожній файл при першому запуску
         try {
             if (file.getParentFile() != null) file.getParentFile().mkdirs();
             if (!file.exists()) {
