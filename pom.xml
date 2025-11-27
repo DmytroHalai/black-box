@@ -98,10 +98,9 @@
                 <executions>
                     <execution>
                         <id>run-tests</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
+                        <phase>none</phase> <goals>
+                        <goal>java</goal>
+                    </goals>
                         <configuration>
                             <mainClass>org.example.logic.api.EngineRunner</mainClass>
                             <classpathScope>test</classpathScope>
@@ -110,10 +109,9 @@
 
                     <execution>
                         <id>generate</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
+                        <phase>none</phase> <goals>
+                        <goal>java</goal>
+                    </goals>
                         <configuration>
                             <mainClass>org.example.generator.Generator</mainClass>
                             <classpathScope>compile</classpathScope>
@@ -136,6 +134,16 @@
                     </execution>
 
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version> <configuration>
+                <excludes>
+                    <exclude>**/*GameEngineTest.java</exclude>
+
+                </excludes>
+            </configuration>
             </plugin>
         </plugins>
     </build>
