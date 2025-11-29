@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class StudentServiceTest {
     private StudentService studentService;
 
     @Test
-    void findByName_whenStudentExists_returnsStudent() throws IOException {
+    void findByName_whenStudentExists_returnsStudent() {
         String studentName = "Test";
         Student expectedStudent = new Student();
         expectedStudent.setName(studentName);
@@ -46,7 +45,7 @@ public class StudentServiceTest {
     }
 
     @Test
-    void findByName_whenStudentNotExists_returnsNull() throws IOException {
+    void findByName_whenStudentNotExists_returnsNull() {
         // Arrange
         when(studentRepository.getStudent(anyString())).thenReturn(null);
 
@@ -59,22 +58,7 @@ public class StudentServiceTest {
     }
 
     @Test
-    void findByName_whenRepositoryThrowsIOException_throwsIt() throws IOException {
-        String msg = "error occured";
-        // Arrange
-        when(studentRepository.getStudent(anyString()))
-                .thenThrow(new IOException(msg));
-
-        // Act & Assert
-        IOException exception = assertThrows(IOException.class, () -> {
-            studentService.findByName("somebody");
-        });
-
-        assertEquals(msg, exception.getMessage());
-    }
-
-    @Test
-    void saveStudent_successfullySavesStudent() throws IOException {
+    void saveStudent_successfullySavesStudent() {
         // Arrange
         String studentName = "Test";
         int correctImpl = 1;
@@ -93,7 +77,7 @@ public class StudentServiceTest {
     }
 
     @Test
-    void saveStudent_withNullName_stillCallsRepository() throws IOException {
+    void saveStudent_withNullName_stillCallsRepository() {
         // Act
         studentService.saveStudent(null, 50);
 
@@ -106,23 +90,7 @@ public class StudentServiceTest {
     }
 
     @Test
-    void saveStudent_whenRepositoryThrowsIOException_propagatesIt() throws IOException {
-        String msg = "error occured";
-        // Arrange
-        doThrow(new IOException(msg))
-                .when(studentRepository).save(any(Student.class));
-
-        // Act & Assert
-        IOException thrown = assertThrows(IOException.class, () -> {
-            studentService.saveStudent("Test", 100);
-        });
-
-        assertEquals(msg, thrown.getMessage());
-        verify(studentRepository, times(1)).save(any(Student.class));
-    }
-
-    @Test
-    void findSolved_returnsEmptyList_whenNoOneHasCorrectAnswer() throws IOException {
+    void findSolved_returnsEmptyList_whenNoOneHasCorrectAnswer() {
         when(studentRepository.getStudents()).thenReturn(List.of(
                 studentWithOnlyWrong(),
                 studentWithNoChecks(),
@@ -133,7 +101,7 @@ public class StudentServiceTest {
     }
 
     @Test
-    void findSolved_returnsEmptyList_whenAllStudentsHaveEmptyCheckResults() throws IOException {
+    void findSolved_returnsEmptyList_whenAllStudentsHaveEmptyCheckResults() {
         when(studentRepository.getStudents()).thenReturn(List.of(
                 studentWithNoChecks(),
                 studentWithNoChecks()
@@ -143,15 +111,7 @@ public class StudentServiceTest {
     }
 
     @Test
-    void findSolved_propagatesIOException_fromRepository() throws IOException {
-        when(studentRepository.getStudents())
-                .thenThrow(new IOException("Disk error"));
-
-        assertThrows(IOException.class, () -> studentService.findSolved());
-    }
-
-    @Test
-    void findSolved_returnsOriginalStudentInstances_notCopies() throws IOException {
+    void findSolved_returnsOriginalStudentInstances_notCopies() {
         Student original = new Student();
         original.setName("John");
         original.addCheckResult(correct());
