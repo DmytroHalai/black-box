@@ -3,9 +3,8 @@ package org.example.runner;
 import org.example.logic.api.GameEngine;
 import org.reflections.Reflections;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class GameEngineFactory {
 
@@ -15,19 +14,11 @@ public class GameEngineFactory {
         Reflections reflections = new Reflections(
                 "org.example.impl"
         );
-
-        Set<Class<? extends GameEngine>> impls = reflections.getSubTypesOf(GameEngine.class);
-
-        IMPLEMENTATIONS = impls.stream()
-                .filter(cls -> !cls.isInterface() && !cls.isAnonymousClass() && !cls.isLocalClass())
-                .sorted((a, b) -> {
-                    String nameA = a.getSimpleName();
-                    String nameB = b.getSimpleName();
-                    int numA = extractNumber(nameA);
-                    int numB = extractNumber(nameB);
-                    return Integer.compare(numA, numB);
-                })
-                .collect(Collectors.toList());
+        IMPLEMENTATIONS = reflections.getSubTypesOf(GameEngine.class).
+                stream()
+                .sorted(Comparator.comparing(clazz ->
+                        Integer.parseInt(clazz.getSimpleName().replaceAll("\\D", ""))))
+                .toList();
     }
 
     public static GameEngine create(int index) {
@@ -41,10 +32,6 @@ public class GameEngineFactory {
     public static List<String> getImplementationNames() {
         return IMPLEMENTATIONS.stream()
                 .map(Class::getSimpleName)
-                .collect(Collectors.toList());
-    }
-
-    private static int extractNumber(String name) {
-        return Integer.parseInt(name.replaceAll("\\D+", ""));
+                .toList();
     }
 }
