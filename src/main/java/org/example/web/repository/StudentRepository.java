@@ -13,19 +13,19 @@ public class StudentRepository {
             "data/check_results.json",
             new TypeReference<List<Student>>() {});
 
-    public List<Student> getStudents() throws IOException {
+    public List<Student> getStudents() {
         return studentRepo.findAll();
     }
 
-    public Student getStudent(String name) throws IOException {
+    public Student getStudent(String name) {
         return studentRepo.findAll().stream().filter(s -> s.getName().equals(name)).findFirst().orElse(null);
     }
 
-    public void save(Student student) throws IOException {
+    public void save(Student student) {
         studentRepo.add(student);
     }
 
-    public void saveAll(List<Student> students) throws IOException {
+    public void saveAll(List<Student> students)  {
         studentRepo.saveAll(students);
     }
 }

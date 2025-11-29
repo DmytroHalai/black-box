@@ -68,48 +68,76 @@ public class SourceCopier {
         System.exit(1);
     }
 
-    private static void copyDirectoryWithCleaning(Path sourceDir, Path targetDir) throws IOException {
-        Files.walkFileTree(sourceDir, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                Path targetPath = targetDir.resolve(sourceDir.relativize(dir));
-                Files.createDirectories(targetPath);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Path targetFile = targetDir.resolve(sourceDir.relativize(file));
-                if (file.toString().endsWith(".java")) {
-                    String content = Files.readString(file, StandardCharsets.UTF_8);
-                    String cleaned = PRIVATE_BLOCK_PATTERN.matcher(content).replaceAll("");
-                    Files.writeString(targetFile, cleaned, StandardCharsets.UTF_8,
-                            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-                } else {
-                    Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+    private static void copyDirectoryWithCleaning(Path sourceDir, Path targetDir) {
+        try {
+            Files.walkFileTree(sourceDir, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                    Path targetPath = targetDir.resolve(sourceDir.relativize(dir));
+                    try {
+                        Files.createDirectories(targetPath);
+                    } catch (IOException e) {
+                        System.err.println("Error creating directory: " + targetPath);
+                    }
+                    return FileVisitResult.CONTINUE;
                 }
-                return FileVisitResult.CONTINUE;
-            }
-        });
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    Path targetFile = targetDir.resolve(sourceDir.relativize(file));
+                    if (file.toString().endsWith(".java")) {
+                        try {
+                            String content = Files.readString(file, StandardCharsets.UTF_8);
+                            String cleaned = PRIVATE_BLOCK_PATTERN.matcher(content).replaceAll("");
+                            Files.writeString(targetFile, cleaned, StandardCharsets.UTF_8,
+                                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                        } catch (IOException e) {
+                            System.err.println("Error rw to file: " + targetFile);
+                        }
+                    } else {
+                        try {
+                            Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                        } catch (IOException e) {
+                            System.err.println("Error copying file: " + file);
+                        }
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            System.err.println("Error copying source: " + sourceDir);
+        }
     }
 
-    private static void deleteRecursively(Path path) throws IOException {
+    private static void deleteRecursively(Path path) {
         if (!Files.exists(path)) {
             return;
         }
 
-        Files.walkFileTree(path, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
+        try {
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs){
+                    try {
+                        Files.delete(file);
+                    } catch (IOException e) {
+                        System.err.println("Error deleting file: " + file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                    try {
+                        Files.delete(dir);
+                    } catch (IOException e) {
+                        System.out.println("Error deleting directory: " + dir);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            System.err.println("Error deleting: " + path);
+        }
     }
 }

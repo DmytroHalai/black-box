@@ -17,18 +17,18 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public Student findByName(String studentName) throws IOException {
+    public Student findByName(String studentName) {
         return studentRepository.getStudent(studentName);
     }
 
-    public void saveStudent(String studentData, int correctImplementation) throws IOException {
+    public void saveStudent(String studentData, int correctImplementation) {
         Student student = new Student();
         student.setCorrectImpl(correctImplementation);
         student.setName(studentData);
         studentRepository.save(student);
     }
 
-    public void updateStudent(Student updatedStudent) throws IOException {
+    public void updateStudent(Student updatedStudent) {
         List<Student> students = studentRepository.getStudents();
         for (int i = 0; i < students.size(); i++) {
             if (students.get(i).getName().equals(updatedStudent.getName())) {
@@ -39,15 +39,15 @@ public class StudentService {
         studentRepository.saveAll(students);
     }
 
-    public boolean isStudentExist(String studentName) throws IOException {
+    public boolean isStudentExist(String studentName) {
         return studentRepository.getStudent(studentName) != null;
     }
 
-    public List<Student> findAllActive() throws IOException {
+    public List<Student> findAllActive() {
         return studentRepository.getStudents().stream().filter(s -> !s.getCheckResults().isEmpty()).toList();
     }
 
-    public List<Student> findSolved() throws IOException {
+    public List<Student> findSolved() {
         List<Student> result = new ArrayList<>();
         List<Student> students = studentRepository.getStudents().stream()
                 .filter(s -> !s.getCheckResults().isEmpty()).toList();
@@ -63,7 +63,7 @@ public class StudentService {
         return result;
     }
 
-    public List<Student> findAll() throws IOException {
+    public List<Student> findAll() {
         return studentRepository.getStudents();
     }
 }

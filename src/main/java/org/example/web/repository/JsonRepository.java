@@ -34,17 +34,26 @@ public class JsonRepository<T> {
         }
     }
 
-    public List<T> findAll() throws IOException {
+    public List<T> findAll() {
         if (!file.exists() || file.length() == 0) return new ArrayList<>();
-        return mapper.readValue(file, typeRef);
+       try {
+           return mapper.readValue(file, typeRef);
+       } catch (IOException e) {
+           System.err.println("Error reading JSON file: " + file.getAbsolutePath());
+       }
+       return new ArrayList<>();
     }
 
-    public void saveAll(List<T> data) throws IOException {
+    public void saveAll(List<T> data) {
         if (file.getParentFile() != null) file.getParentFile().mkdirs();
-        mapper.writerWithDefaultPrettyPrinter().writeValue(file, data);
+        try {
+            mapper.writerWithDefaultPrettyPrinter().writeValue(file, data);
+        } catch (IOException e) {
+            System.err.println("Error writing JSON file: " + file.getAbsolutePath());
+        }
     }
 
-    public void add(T entity) throws IOException {
+    public void add(T entity) {
         List<T> list = findAll();
         list.add(entity);
         saveAll(list);
