@@ -5,7 +5,6 @@ import org.example.web.model.Student;
 import org.example.web.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
