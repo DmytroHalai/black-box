@@ -43,7 +43,7 @@ public class AppController {
 
         StreamingResponseBody body = outputStream -> {
             try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(outputStream))) {
-                ImplementationBatch impls = Generator.generateInMemory(1000,
+                ImplementationBatch impls = Generator.generateWebApi(1000,
                         "src/main/java/org/example/Engine.java",
                         "src/main/java/org/example/impl");
 
