@@ -9,8 +9,9 @@ import org.example.web.model.ImplementationBatch;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.example.generator.BugRegistry.*;
@@ -20,10 +21,19 @@ public class Generator {
 
     private static final Random random = new Random();
 
-    public static void generate(int num, String enginePath, String saveImplFolder) throws FileNotFoundException {
+    public static void main(String[] args) {
+        String fileToSaveIn = "src/main/java/org/example/impl";
+        generate(1000, "src/main/java/org/example/Engine.java", fileToSaveIn);
+    }
+
+    public static void generate(int num, String enginePath, String saveImplFolder) {
         File folder = new File(saveImplFolder);
         if (!folder.exists()) {
-            folder.mkdirs();
+            try {
+                Files.createDirectory(Path.of(saveImplFolder));
+            } catch (IOException e) {
+                System.err.println("Error creating directory: " + saveImplFolder);
+            }
         }
 
         int correctIndex = random.nextInt(num);
@@ -31,12 +41,11 @@ public class Generator {
         for (int i = 0; i < num; i++) {
             String className = "Engine" + i;
             boolean isCorrect = (i == correctIndex);
-
             doImplementation(enginePath, saveImplFolder, className, isCorrect);
         }
     }
 
-    public static ImplementationBatch generateInMemory(int num, String enginePath, String saveImplFolder) throws FileNotFoundException {
+    public static ImplementationBatch generateWebApi(int num, String enginePath, String saveImplFolder) {
         ImplementationBatch batch = new ImplementationBatch();
 
         List<String> implementations = new ArrayList<>();
@@ -44,38 +53,50 @@ public class Generator {
 
         for (int i = 0; i < num; i++) {
             String className = "Engine" + i;
-            boolean isCorrect = (i == correctIndex);
-            implementations.add(doImplementationInMemory(enginePath,saveImplFolder, className, isCorrect));
+            implementations.add(
+                    doImplementationWebApi(enginePath,
+                            saveImplFolder,
+                            className,
+                            i == correctIndex)
+            );
         }
         batch.setImplementations(implementations);
         batch.setCorrectImplementation(correctIndex);
         return batch;
     }
 
-    private static String doImplementationInMemory(String enginePath, String saveImplFolder, String className, boolean isCorrect)
-            throws FileNotFoundException {
+    private static String doImplementationWebApi(String enginePath, String saveImplFolder, String className, boolean isCorrect) {
         JavaParser parser = new JavaParser();
-        CompilationUnit cu = parser.parse(new File(enginePath))
-                .getResult().orElseThrow();
+        CompilationUnit cu = null;
+        try {
+            cu = parser.parse(new File(enginePath))
+                    .getResult().orElseThrow();
 
-        cu.setPackageDeclaration(saveImplFolder.substring(saveImplFolder.indexOf("java") + 5).replace("/", "."));
-        cu.findAll(ConstructorDeclaration.class)
-                .forEach(constructorDeclaration -> constructorDeclaration.setName(className));
-        cu.findAll(ClassOrInterfaceDeclaration.class)
-                .forEach(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.setName(className));
-
-        if (!isCorrect) {
-            makeRandomBugs(cu);
+            makeImplementation(saveImplFolder, className, isCorrect, cu);
+        } catch (FileNotFoundException e) {
+            System.err.println("Error parsing file: " + enginePath);
         }
 
-        return cu.toString();
+        return cu != null ? cu.toString() : null;
     }
 
-    private static void doImplementation(String enginePath, String saveImplFolder, String className, boolean isCorrect) throws FileNotFoundException {
+    private static void doImplementation(String enginePath, String saveImplFolder, String className, boolean isCorrect) {
         JavaParser parser = new JavaParser();
-        CompilationUnit cu = parser.parse(new File(enginePath))
-                .getResult().orElseThrow();
+        CompilationUnit cu;
 
+        try {
+            cu = parser.parse(new File(enginePath))
+                    .getResult().orElseThrow();
+            makeImplementation(saveImplFolder, className, isCorrect, cu);
+            Files.writeString(Path.of(saveImplFolder, className + ".java"), cu.toString());
+        } catch (FileNotFoundException e) {
+            System.err.println("Error parsing engine: " + enginePath);
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + saveImplFolder + "/" + className + ".java");
+        }
+    }
+
+    private static void makeImplementation(String saveImplFolder, String className, boolean isCorrect, CompilationUnit cu) {
         cu.setPackageDeclaration(saveImplFolder.substring(saveImplFolder.indexOf("java") + 5).replace("/", "."));
         cu.findAll(ConstructorDeclaration.class)
                 .forEach(constructorDeclaration -> constructorDeclaration.setName(className));
@@ -83,12 +104,6 @@ public class Generator {
                 .forEach(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.setName(className));
         if (!isCorrect) {
             makeRandomBugs(cu);
-        }
-
-        try (FileWriter fw = new FileWriter(saveImplFolder + "/" + className + ".java")) {
-            fw.write(cu.toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -111,10 +126,5 @@ public class Generator {
                 bugOpt.get().apply(m);
             } else break;
         }
-    }
-
-    public static void main(String[] args) throws FileNotFoundException {
-        String fileToSaveIn = "src/main/java/org/example/impl";
-        generate(1000, "src/main/java/org/example/Engine.java", fileToSaveIn);
     }
 }
