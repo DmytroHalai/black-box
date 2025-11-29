@@ -3,6 +3,7 @@ package org.example.runner;
 import org.example.logic.api.GameEngine;
 import org.reflections.Reflections;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,16 +19,7 @@ public class GameEngineFactory {
 
         Set<Class<? extends GameEngine>> impls = reflections.getSubTypesOf(GameEngine.class);
 
-        IMPLEMENTATIONS = impls.stream()
-                .filter(cls -> !cls.isInterface() && !cls.isAnonymousClass() && !cls.isLocalClass())
-                .sorted((a, b) -> {
-                    String nameA = a.getSimpleName();
-                    String nameB = b.getSimpleName();
-                    int numA = extractNumber(nameA);
-                    int numB = extractNumber(nameB);
-                    return Integer.compare(numA, numB);
-                })
-                .collect(Collectors.toList());
+        IMPLEMENTATIONS = new ArrayList<>(impls);
     }
 
     public static GameEngine create(int index) {
@@ -42,9 +34,5 @@ public class GameEngineFactory {
         return IMPLEMENTATIONS.stream()
                 .map(Class::getSimpleName)
                 .collect(Collectors.toList());
-    }
-
-    private static int extractNumber(String name) {
-        return Integer.parseInt(name.replaceAll("\\D+", ""));
     }
 }
