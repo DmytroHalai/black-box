@@ -8,7 +8,7 @@ import org.junit.platform.launcher.core.LauncherFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
@@ -16,7 +16,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 
 public class EngineRunner {
 
-    private static final String SUMMARY_FILE = "tests_summary.txt";
+    private static final Path SUMMARY_FILE_PATH = Path.of("tests_summary.txt");
 
     public static void main(String[] args) {
         Launcher launcher = LauncherFactory.create();
@@ -27,9 +27,9 @@ public class EngineRunner {
         System.out.println("Found " + total + " implementations of GameEngine\n");
 
         try {
-            Files.writeString(Paths.get(SUMMARY_FILE), "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(SUMMARY_FILE_PATH, "", StandardOpenOption.CREATE);
         } catch (IOException e) {
-            System.err.println("Error occurred during creating " + SUMMARY_FILE);
+            System.err.println("Error occurred during creating " + SUMMARY_FILE_PATH);
         }
 
         for (int i = 0; i < total; i++) {
@@ -47,41 +47,35 @@ public class EngineRunner {
 
             launcher.execute(request);
 
-            if (listener.isAllPassed()) {
+            if (listener.areAllTestsPassed()) {
                 appendToSummary(name);
-                System.out.println("PASSED");
-            } else {
-                System.out.println("FAILED");
-            }
+                System.out.println("<- PASSED");
+            } else System.out.println();
         }
 
-        System.out.println("\nDone. Passed: " + SUMMARY_FILE);
+        System.out.println("\nDone. Passed: " + SUMMARY_FILE_PATH);
     }
 
     private static void appendToSummary(String name) {
         try {
-            Files.writeString(
-                    Paths.get(SUMMARY_FILE),
-                    name + System.lineSeparator(),
-                    StandardOpenOption.CREATE, StandardOpenOption.APPEND
-            );
+            Files.writeString(SUMMARY_FILE_PATH, name + System.lineSeparator());
         } catch (IOException e) {
             System.err.println("Error occurred during writing: " + name);
         }
     }
 
     private static class TestResultListener implements TestExecutionListener {
-        private boolean allPassed = true;
+        private boolean allTestsPassed = true;
 
         @Override
         public void executionFinished(TestIdentifier id, TestExecutionResult result) {
             if (id.isTest() && result.getStatus() == TestExecutionResult.Status.FAILED) {
-                allPassed = false;
+                allTestsPassed = false;
             }
         }
 
-        public boolean isAllPassed() {
-            return allPassed;
+        public boolean areAllTestsPassed() {
+            return allTestsPassed;
         }
     }
 }

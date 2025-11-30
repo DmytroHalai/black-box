@@ -57,10 +57,10 @@ class GeneratorTest {
     }
 
     @Test
-    void testGenerateInMemory_returnsBatchWithCorrectSizeAndClassNames() throws Exception {
+    void testGenerateWebApi_returnsBatchWithCorrectSizeAndClassNames() throws Exception {
         int num = 20;
 
-        ImplementationBatch batch = Generator.generateInMemory(
+        ImplementationBatch batch = Generator.generateWebApi(
                 num,
                 ENGINE_PATH.toString(),
                 OUTPUT_DIR.toString()

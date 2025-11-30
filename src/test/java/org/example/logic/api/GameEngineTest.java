@@ -1,6 +1,5 @@
 package org.example.logic.api;
 
-import org.example.logic.api.*;
 import org.example.runner.GameEngineFactory;
 import org.junit.jupiter.api.BeforeEach;
 //begin of private
@@ -10,6 +9,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 //end of private
 class GameEngineTest {
     private GameEngine engine;

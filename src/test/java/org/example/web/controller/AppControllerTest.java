@@ -182,7 +182,7 @@ class AppControllerTest {
         when(mockBatch.getCorrectImplementation()).thenReturn(42);
 
         try (MockedStatic<Generator> generatorMock = Mockito.mockStatic(Generator.class)) {
-            generatorMock.when(() -> Generator.generateInMemory(
+            generatorMock.when(() -> Generator.generateWebApi(
                     anyInt(),
                     anyString(),
                     anyString()
