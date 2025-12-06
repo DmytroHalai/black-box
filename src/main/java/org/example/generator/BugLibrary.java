@@ -9,14 +9,54 @@ import java.util.List;
 
 public class BugLibrary {
 
+    private static final String TRUE = "true";
+    private static final String FALSE = "false";
+
+    private static final String CELL = "Cell";
+    private static final String CELL_EMPTY = "Cell.EMPTY";
+    private static final String CELL_O = "Cell.O";
+    private static final String CELL_X = "Cell.X";
+
+    private static final String J = "j";
+    private static final String K = "k";
+    private static final String I = "i";
+
+    private static final String O = "O";
+    private static final String X = "X";
+
+    private static final String PLAYER = "Player";
+    private static final String PLAYER_X = "Player.X";
+    private static final String PLAYER_O = "Player.O";
+
+    private static final String OPTIONAL_PLAYER_X = "Optional.of(Player.X)";
+    private static final String OPTIONAL_PLAYER_O = "Optional.of(Player.O)";
+    private static final String OPTIONAL_EMPTY = "Optional.empty()";
+
+    private static final String RESULT = "Result";
+    private static final String X_WINS = "X_WINS";
+    private static final String O_WINS = "O_WINS";
+    private static final String ONGOING = "ONGOING";
+    private static final String DRAW = "DRAW";
+
+    private static final String MOVE_X = "move.x()";
+    private static final String MOVE_Y = "move.y()";
+
+    private static final String ONE = "1";
+    private static final String TWO = "2";
+    private static final String ZERO = "0";
+
+    private static final String THREE_IN_ROW = "threeInRow";
+    private static final String TURN = "turn";
+    private final static String TURN_OTHER = "turn.other()";
+
     // ========== Bugs for threeInRow ==========
 
     public static void bugThreeInRowAlwaysTrue(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "true");
+        bugReturnStatementOnly(m, TRUE);
     }
 
     public static void bugThreeInRowAlwaysFalse(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "false");
+        bugReturnStatementOnly(m, FALSE);
     }
 
     public static void bugThreeInRowIsNotEmptyEquals(MethodDeclaration m) {
@@ -24,18 +64,18 @@ public class BugLibrary {
         if (body == null) return;
         body.findAll(BinaryExpr.class).forEach(expr -> {
             if (expr.getOperator() == BinaryExpr.Operator.NOT_EQUALS &&
-                    expr.getRight().toString().equals("Cell.EMPTY")) {
+                    expr.getRight().toString().equals(CELL_EMPTY)) {
                 expr.setOperator(BinaryExpr.Operator.EQUALS);
             }
         });
     }
 
     public static void bugThreeInRowIsNotEmptyCellX(MethodDeclaration m) {
-        bugCellStatusChange(m, "Cell.X");
+        bugCellStatusChange(m, CELL_X);
     }
 
     public static void bugThreeInRowIsNotEmptyCellO(MethodDeclaration m) {
-        bugCellStatusChange(m, "Cell.O");
+        bugCellStatusChange(m, CELL_O);
     }
 
     public static void bugThreeInRowIsNotEmptyNull(MethodDeclaration m) {
@@ -43,40 +83,43 @@ public class BugLibrary {
     }
 
     public static void bugThreeInRowIsNotEmptyCellJ(MethodDeclaration m) {
-        bugThreeInRowChangeIndex(m, "j");
+        bugThreeInRowChangeIndex(m, J);
     }
 
     public static void bugThreeInRowIsNotEmptyCellK(MethodDeclaration m) {
-        bugThreeInRowChangeIndex(m, "k");
+        bugThreeInRowChangeIndex(m, K);
     }
 
+    // ========== Bugs for getWinner ==========
 
     public static void bugThreeInRowEqualIJtoNotEqual(MethodDeclaration m) {
-        bugThreeInRowFlipEquality(m, "i", "j");
+        bugThreeInRowFlipEquality(m, I, J);
     }
 
     public static void bugThreeInRowEqualIJtoIK(MethodDeclaration m) {
-        bugThreeInRowChangeEqualIndex(m, "i", "j", "k", true);
+        bugThreeInRowChangeEqualIndex(m, I, J, K, true);
     }
 
     public static void bugThreeInRowEqualIJtoII(MethodDeclaration m) {
-        bugThreeInRowChangeEqualIndex(m, "i", "j", "i", true);
+        bugThreeInRowChangeEqualIndex(m, I, J, I, true);
     }
 
     public static void bugThreeInRowEqualIJtoJJ(MethodDeclaration m) {
-        bugThreeInRowChangeEqualIndex(m, "i", "j", "j", false);
+        bugThreeInRowChangeEqualIndex(m, I, J, J, false);
     }
 
+    // ========== Bugs for playTurn ==========
+
     public static void bugThreeInRowEqualJKtoNotEqual(MethodDeclaration m) {
-        bugThreeInRowFlipEquality(m, "j", "k");
+        bugThreeInRowFlipEquality(m, J, K);
     }
 
     public static void bugThreeInRowEqualJKtoJJ(MethodDeclaration m) {
-        bugThreeInRowChangeEqualIndex(m, "j", "k", "j", true);
+        bugThreeInRowChangeEqualIndex(m, J, K, J, true);
     }
 
     public static void bugThreeInRowEqualJKtoKK(MethodDeclaration m) {
-        bugThreeInRowChangeEqualIndex(m, "j", "k", "k", false);
+        bugThreeInRowChangeEqualIndex(m, J, K, K, false);
     }
 
     public static void bugThreeInRowReturnSecondOR(MethodDeclaration m) {
@@ -149,34 +192,30 @@ public class BugLibrary {
         });
     }
 
-    // ========== Bugs for getWinner ==========
-
     public static void bugGetWinnerAlwaysX(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "Optional.of(Player.X)");
+        bugReturnStatementOnly(m, OPTIONAL_PLAYER_X);
     }
 
     public static void bugGetWinnerAlwaysEmpty(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "Optional.empty()");
+        bugReturnStatementOnly(m, OPTIONAL_EMPTY);
     }
 
     public static void bugGetWinnerFlipWinners(MethodDeclaration m) {
         m.getBody().ifPresent(body -> body.findAll(SwitchEntry.class)
                 .forEach(entry -> entry.getStatements().forEach(stmt -> {
                     String s = stmt.toString();
-                    if (s.contains("Player.X")) {
-                        stmt.replace(new ExpressionStmt(new NameExpr("Optional.of(Player.O)")));
-                    } else if (s.contains("Player.O")) {
-                        stmt.replace(new ExpressionStmt(new NameExpr("Optional.of(Player.X)")));
+                    if (s.contains(PLAYER_X)) {
+                        stmt.replace(new ExpressionStmt(new NameExpr(OPTIONAL_PLAYER_O)));
+                    } else if (s.contains(PLAYER_O)) {
+                        stmt.replace(new ExpressionStmt(new NameExpr(OPTIONAL_PLAYER_X)));
                     }
                 }))
         );
     }
 
     public static void bugGetWinnerRemoveSwitch(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "Optional.empty()");
+        bugReturnStatementOnly(m, OPTIONAL_EMPTY);
     }
-
-    // ========== Bugs for playTurn ==========
 
     public static void bugPlayTurnEmpty(MethodDeclaration m) {
         m.setBody(new BlockStmt());
@@ -191,8 +230,8 @@ public class BugLibrary {
         if (body == null) return;
         body.findAll(BinaryExpr.class).forEach(expr -> {
             if (expr.getOperator() == BinaryExpr.Operator.EQUALS &&
-                    expr.getLeft().toString().equals("turn") &&
-                    expr.getRight().toString().equals("Player.X")) {
+                    expr.getLeft().toString().equals(TURN) &&
+                    expr.getRight().toString().equals(PLAYER_X)) {
                 expr.setOperator(BinaryExpr.Operator.NOT_EQUALS);
             }
         });
@@ -203,9 +242,9 @@ public class BugLibrary {
         if (body == null) return;
         body.findAll(BinaryExpr.class).forEach(expr -> {
             if (expr.getOperator() == BinaryExpr.Operator.EQUALS &&
-                    expr.getLeft().toString().equals("turn") &&
-                    expr.getRight().toString().equals("Player.X")) {
-                expr.setRight(new NameExpr("Player.O"));
+                    expr.getLeft().toString().equals(TURN) &&
+                    expr.getRight().toString().equals(PLAYER_X)) {
+                expr.setRight(new NameExpr(PLAYER_O));
             }
         });
     }
@@ -218,13 +257,15 @@ public class BugLibrary {
             if (cond.getThenExpr().isFieldAccessExpr() && cond.getElseExpr().isFieldAccessExpr()) {
                 FieldAccessExpr thenExpr = cond.getThenExpr().asFieldAccessExpr();
                 FieldAccessExpr elseExpr = cond.getElseExpr().asFieldAccessExpr();
-                if (thenExpr.toString().equals("Cell.X") && elseExpr.toString().equals("Cell.O")) {
-                    cond.setThenExpr(new FieldAccessExpr(new NameExpr("Cell"), "O"));
-                    cond.setElseExpr(new FieldAccessExpr(new NameExpr("Cell"), "X"));
+                if (thenExpr.toString().equals(CELL_X) && elseExpr.toString().equals(CELL_O)) {
+                    cond.setThenExpr(new FieldAccessExpr(new NameExpr(CELL), O));
+                    cond.setElseExpr(new FieldAccessExpr(new NameExpr(CELL), X));
                 }
             }
         });
     }
+
+    // ========== Bugs for validateMove ==========
 
     public static void bugPlayTurnInvertHasWins(MethodDeclaration m) {
         invertMethodCall(m, "hasWin");
@@ -239,8 +280,8 @@ public class BugLibrary {
                 FieldAccessExpr elseExpr = cond.getElseExpr().asFieldAccessExpr();
                 if (thenExpr.toString().equals("Result.X_WINS")
                         && elseExpr.toString().equals("Result.O_WINS")) {
-                    cond.setThenExpr(new FieldAccessExpr(new NameExpr("Result"), "O_WINS"));
-                    cond.setElseExpr(new FieldAccessExpr(new NameExpr("Result"), "X_WINS"));
+                    cond.setThenExpr(new FieldAccessExpr(new NameExpr(RESULT), O_WINS));
+                    cond.setElseExpr(new FieldAccessExpr(new NameExpr(RESULT), X_WINS));
                 }
             }
         });
@@ -267,15 +308,15 @@ public class BugLibrary {
     }
 
     public static void bugPlayTurnInvertResultDrawToOngoing(MethodDeclaration m) {
-        bugPlayTurnChangeResultState(m, "ONGOING");
+        bugPlayTurnChangeResultState(m, ONGOING);
     }
 
     public static void bugPlayTurnInvertResultDrawToXWins(MethodDeclaration m) {
-        bugPlayTurnChangeResultState(m, "X_WINS");
+        bugPlayTurnChangeResultState(m, X_WINS);
     }
 
     public static void bugPlayTurnInvertResultDrawToOWins(MethodDeclaration m) {
-        bugPlayTurnChangeResultState(m, "O_WINS");
+        bugPlayTurnChangeResultState(m, O_WINS);
     }
 
     public static void bugPlayTurnNoTurnSwitch(MethodDeclaration m) {
@@ -284,11 +325,11 @@ public class BugLibrary {
     }
 
     public static void bugPlayTurnToX(MethodDeclaration m) {
-        bugPlayTurnChangeTurnToPlayer(m, "X");
+        bugPlayTurnChangeTurnToPlayer(m, X);
     }
 
     public static void bugPlayTurnToO(MethodDeclaration m) {
-        bugPlayTurnChangeTurnToPlayer(m, "O");
+        bugPlayTurnChangeTurnToPlayer(m, O);
     }
 
     public static void bugPlayTurnIdxWithXX(MethodDeclaration m) {
@@ -299,8 +340,6 @@ public class BugLibrary {
         bugIdxWithYY(m);
     }
 
-    // ========== Bugs for validateMove ==========
-
     public static void bugValidateMoveEmpty(MethodDeclaration m) {
         m.setBody(new BlockStmt());
     }
@@ -310,29 +349,30 @@ public class BugLibrary {
     }
 
     public static void bugValidateMoveEqualsTurn(MethodDeclaration m) {
-        bugValidateMoveChangeComparisonOperator(m, "move.player()", "turn", BinaryExpr.Operator.EQUALS);
+        bugValidateMoveChangeComparisonOperator(m, "move.player()", TURN, BinaryExpr.Operator.EQUALS);
     }
 
     public static void bugValidateMoveXMoreThan0(MethodDeclaration m) {
-        bugValidateMoveChangeComparisonOperator(m, "move.x()", "0", BinaryExpr.Operator.GREATER);
+        bugValidateMoveChangeComparisonOperator(m, MOVE_X, ZERO, BinaryExpr.Operator.GREATER);
     }
 
     public static void bugValidateMoveXLessThan2(MethodDeclaration m) {
-        bugValidateMoveChangeComparisonOperator(m, "move.x()", "2", BinaryExpr.Operator.LESS);
+        bugValidateMoveChangeComparisonOperator(m, MOVE_X, TWO, BinaryExpr.Operator.LESS);
     }
 
-
     public static void bugValidateMoveYMoreThan0(MethodDeclaration m) {
-        bugValidateMoveChangeComparisonOperator(m, "move.y()", "0", BinaryExpr.Operator.GREATER);
+        bugValidateMoveChangeComparisonOperator(m, MOVE_Y, ZERO, BinaryExpr.Operator.GREATER);
     }
 
     public static void bugValidateMoveYLessThan2(MethodDeclaration m) {
-        bugValidateMoveChangeComparisonOperator(m, "move.y()", "2", BinaryExpr.Operator.LESS);
+        bugValidateMoveChangeComparisonOperator(m, MOVE_Y, TWO, BinaryExpr.Operator.LESS);
     }
 
     public static void bugValidateMoveInvertFirstAnd(MethodDeclaration m) {
         bugValidateMoveInvertLogicalOperator(m, (short) 0);
     }
+
+    // ========== Bugs for reset ==========
 
     public static void bugValidateMoveInvertSecondAnd(MethodDeclaration m) {
         bugValidateMoveInvertLogicalOperator(m, (short) 1);
@@ -350,7 +390,7 @@ public class BugLibrary {
             if (condition.isBinaryExpr()) {
                 BinaryExpr binary = condition.asBinaryExpr();
                 if (binary.getOperator() == BinaryExpr.Operator.NOT_EQUALS &&
-                        binary.getRight().toString().equals("Cell.EMPTY") &&
+                        binary.getRight().toString().equals(CELL_EMPTY) &&
                         binary.getLeft().toString().startsWith("board[idx(")) {
                     binary.setOperator(BinaryExpr.Operator.EQUALS);
                 }
@@ -374,8 +414,6 @@ public class BugLibrary {
         bugIdxWithYY(m);
     }
 
-    // ========== Bugs for reset ==========
-
     public static void bugResetEmpty(MethodDeclaration m) {
         m.setBody(new BlockStmt());
     }
@@ -388,48 +426,54 @@ public class BugLibrary {
     public static void bugResetCellX(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        cellChangeTo(body, "X");
+        cellChangeTo(body, X);
     }
 
     public static void bugResetCellO(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        cellChangeTo(body, "O");
+        cellChangeTo(body, O);
     }
+
+    // ========== Bugs for isBoardFull ==========
 
     public static void bugResetTurnToO(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        changeResultAssignmentTO(body,"Player","O", 0);
+        changeResultAssignmentTO(body, PLAYER, O, 0);
     }
 
     public static void bugResetResultToDraw(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        changeResultAssignmentTO(body,"Result", "DRAW", 1);
+        changeResultAssignmentTO(body, RESULT, DRAW, 1);
     }
 
     public static void bugResetResultToXWins(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        changeResultAssignmentTO(body, "Result","X_WINS", 1);
+        changeResultAssignmentTO(body, RESULT, X_WINS, 1);
     }
 
     public static void bugResetResultToOWins(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
-        changeResultAssignmentTO(body, "Result","O_WINS", 1);
+        changeResultAssignmentTO(body, RESULT, O_WINS, 1);
     }
-
-    // ========== Bugs for isBoardFull ==========
 
     public static void bugIsBoardFullAlwaysTrue(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "true");
+        bugReturnStatementOnly(m, TRUE);
     }
 
+
+    // ========== Bugs for initBoard ==========
+
     public static void bugIsBoardFullAlwaysFalse(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "false");
+        bugReturnStatementOnly(m, FALSE);
     }
+
+
+    // ========== Bugs for getState ==========
 
     public static void bugIsBoardFullCNotEqualsEmpty(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
@@ -445,8 +489,7 @@ public class BugLibrary {
         bugEqualsCellO(m);
     }
 
-
-    // ========== Bugs for initBoard ==========
+    // ========== Bugs for isTerminal ==========
 
     public static void bugInitBoardArraySize(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
@@ -454,15 +497,12 @@ public class BugLibrary {
         body.findFirst(ArrayCreationExpr.class).get().getLevels().get(0).setDimension(new IntegerLiteralExpr("3"));
     }
 
-
-    // ========== Bugs for getState ==========
-
     public static void bugGetStateArraySize(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(ArrayCreationExpr.class).forEach(array -> {
             if (array.getElementType().asString().equals("char")) {
-                array.getLevels().get(0).setDimension(new IntegerLiteralExpr("1"));
+                array.getLevels().get(0).setDimension(new IntegerLiteralExpr());
             }
         });
     }
@@ -472,7 +512,7 @@ public class BugLibrary {
         if (body == null) return;
         body.findFirst(ForStmt.class).
                 get().getCompare().
-                get().asBinaryExpr().setRight(new IntegerLiteralExpr("1"));
+                get().asBinaryExpr().setRight(new IntegerLiteralExpr());
     }
 
     public static void bugGetStateInvertXAndO(MethodDeclaration m) {
@@ -482,23 +522,21 @@ public class BugLibrary {
             for (SwitchEntry entry : sw.getEntries()) {
                 String label = entry.getLabels().getFirst().toString();
                 ExpressionStmt stmt = entry.getStatements().get(0).asExpressionStmt();
-                if (label.equals("X")) {
-                    stmt.setExpression(new CharLiteralExpr("O"));
-                } else if (label.equals("O")) {
-                    stmt.setExpression(new CharLiteralExpr("X"));
+                if (label.equals(X)) {
+                    stmt.setExpression(new CharLiteralExpr(O));
+                } else if (label.equals(O)) {
+                    stmt.setExpression(new CharLiteralExpr(X));
                 }
             }
         });
     }
 
-    // ========== Bugs for isTerminal ==========
-
     public static void bugIsTerminalAlwaysTrue(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "true");
+        bugReturnStatementOnly(m, TRUE);
     }
 
     public static void bugIsTerminalAlwaysFalse(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "false");
+        bugReturnStatementOnly(m, FALSE);
     }
 
     public static void bugIsTerminalResultEqualsOngoing(MethodDeclaration m) {
@@ -508,27 +546,27 @@ public class BugLibrary {
     }
 
     public static void bugIsTerminalResultNotEqualsXWins(MethodDeclaration m) {
-        bugChangeResultEquality(m, "X_WINS");
+        bugChangeResultEquality(m, X_WINS);
     }
 
     public static void bugIsTerminalResultNotEqualsOWins(MethodDeclaration m) {
-        bugChangeResultEquality(m, "O_WINS");
+        bugChangeResultEquality(m, O_WINS);
     }
 
+    // ========== Bugs for setLines ==========
+
     public static void bugIsTerminalResultNotEqualsDraw(MethodDeclaration m) {
-        bugChangeResultEquality(m, "DRAW");
+        bugChangeResultEquality(m, DRAW);
     }
 
     // ========== Bugs for turn ==========
     public static void bugTurnAlwaysX(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "Player.X");
+        bugReturnStatementOnly(m, PLAYER_X);
     }
 
     public static void bugTurnAlwaysO(MethodDeclaration m) {
-        bugReturnStatementOnly(m, "Player.O");
+        bugReturnStatementOnly(m, PLAYER_O);
     }
-
-    // ========== Bugs for setLines ==========
 
     public static void bugSetLinesRemoveFirstDiagonal(MethodDeclaration m) {
         removeDiagonal(m, 0);
@@ -550,6 +588,8 @@ public class BugLibrary {
         removeDiagonal(m, 4);
     }
 
+    // ========== Bugs for hasWin ==========
+
     public static void bugSetLinesRemoveSixthDiagonal(MethodDeclaration m) {
         removeDiagonal(m, 5);
     }
@@ -562,23 +602,23 @@ public class BugLibrary {
         removeDiagonal(m, 7);
     }
 
-    // ========== Bugs for hasWin ==========
-
     public static void bugHasWinFullInvertThreeInRowAllIndex0(MethodDeclaration m) {
-        bugHasWinInvertThreeInRowAllByOneIndex(m, "0");
+        bugHasWinInvertThreeInRowAllByOneIndex(m, ZERO);
     }
 
     public static void bugHasWinInvertThreeInRowAllIndex1(MethodDeclaration m) {
-        bugHasWinInvertThreeInRowAllByOneIndex(m, "1");
+        bugHasWinInvertThreeInRowAllByOneIndex(m, ONE);
     }
 
     public static void bugHasWinInvertThreeInRowAllIndex2(MethodDeclaration m) {
-        bugHasWinInvertThreeInRowAllByOneIndex(m, "2");
+        bugHasWinInvertThreeInRowAllByOneIndex(m, TWO);
     }
 
     public static void bugHasWinInvertThreeInRow(MethodDeclaration m) {
-        invertMethodCall(m, "threeInRow");
+        invertMethodCall(m, THREE_IN_ROW);
     }
+
+    // ========== Helper methods ==========
 
     public static void bugHasWinInvertReturnAfterIf(MethodDeclaration m) {
         BlockStmt body = m.getBody().orElse(null);
@@ -586,15 +626,13 @@ public class BugLibrary {
         body.findFirst(ReturnStmt.class).get().setExpression(new BooleanLiteralExpr(false));
     }
 
-    // ========== Helper methods ==========
-
     private static void bugPlayTurnChangeResultState(MethodDeclaration m, String resultState) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(AssignExpr.class).forEach(assign -> {
             if (assign.getTarget().toString().equals("result") &&
                     assign.getValue().toString().equals("Result.DRAW")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Result"), resultState));
+                assign.setValue(new FieldAccessExpr(new NameExpr(RESULT), resultState));
             }
         });
     }
@@ -603,9 +641,9 @@ public class BugLibrary {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(AssignExpr.class).forEach(assign -> {
-            if (assign.getTarget().toString().equals("turn") &&
-                    assign.getValue().toString().equals("turn.other()")) {
-                assign.setValue(new FieldAccessExpr(new NameExpr("Player"), changedPlayer));
+            if (assign.getTarget().toString().equals(TURN) &&
+                    assign.getValue().toString().equals(TURN_OTHER)) {
+                assign.setValue(new FieldAccessExpr(new NameExpr(PLAYER), changedPlayer));
             }
         });
     }
@@ -659,10 +697,10 @@ public class BugLibrary {
         if (body == null) return;
         body.findAll(BinaryExpr.class).forEach(expr -> {
             if (expr.getOperator() == BinaryExpr.Operator.NOT_EQUALS &&
-                    expr.getRight().toString().equals("Cell.EMPTY") &&
+                    expr.getRight().toString().equals(CELL_EMPTY) &&
                     expr.getLeft().isArrayAccessExpr()) {
                 ArrayAccessExpr arrayAccess = expr.getLeft().asArrayAccessExpr();
-                if (arrayAccess.getIndex().toString().equals("i")) {
+                if (arrayAccess.getIndex().toString().equals(I)) {
                     arrayAccess.setIndex(new NameExpr(newValue));
                 }
             }
@@ -680,8 +718,8 @@ public class BugLibrary {
             var condition = ifStmt.getCondition();
             if (condition.isBinaryExpr()) {
                 BinaryExpr binary = condition.asBinaryExpr();
-                if (binary.getRight().toString().equals("Cell.EMPTY")) {
-                    binary.setRight(new FieldAccessExpr(new NameExpr("Cell"), "X"));
+                if (binary.getRight().toString().equals(CELL_EMPTY)) {
+                    binary.setRight(new FieldAccessExpr(new NameExpr(CELL), X));
                 }
             }
         });
@@ -694,8 +732,8 @@ public class BugLibrary {
             var condition = ifStmt.getCondition();
             if (condition.isBinaryExpr()) {
                 BinaryExpr binary = condition.asBinaryExpr();
-                if (binary.getRight().toString().equals("Cell.EMPTY")) {
-                    binary.setRight(new FieldAccessExpr(new NameExpr("Cell"), "O"));
+                if (binary.getRight().toString().equals(CELL_EMPTY)) {
+                    binary.setRight(new FieldAccessExpr(new NameExpr(CELL), O));
                 }
             }
         });
@@ -750,14 +788,14 @@ public class BugLibrary {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findFirst(BinaryExpr.class).
-                get().setRight(new FieldAccessExpr(new NameExpr("Result"), changeName));
+                get().setRight(new FieldAccessExpr(new NameExpr(RESULT), changeName));
     }
 
     private static void bugHasWinInvertThreeInRowAllByOneIndex(MethodDeclaration m, String index) {
         BlockStmt body = m.getBody().orElse(null);
         if (body == null) return;
         body.findAll(MethodCallExpr.class).forEach(call -> {
-            if (call.getNameAsString().equals("threeInRow") && call.getArguments().size() == 3) {
+            if (call.getNameAsString().equals(THREE_IN_ROW) && call.getArguments().size() == 3) {
                 ArrayAccessExpr line0 = new ArrayAccessExpr(new NameExpr("line"), new IntegerLiteralExpr(index));
                 call.setArgument(0, line0.clone());
                 call.setArgument(1, line0.clone());
@@ -794,6 +832,6 @@ public class BugLibrary {
 
     private static void cellChangeTo(BlockStmt body, String changeName) {
         body.findFirst(MethodCallExpr.class).
-                get().setArgument(1, new FieldAccessExpr(new NameExpr("Cell"), changeName));
+                get().setArgument(1, new FieldAccessExpr(new NameExpr(CELL), changeName));
     }
 }

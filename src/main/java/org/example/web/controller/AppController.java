@@ -32,7 +32,7 @@ public class AppController {
     }
 
     @GetMapping("/generate/{studentData}")
-    public ResponseEntity<StreamingResponseBody> generate(@PathVariable("studentData") String studentData) throws IOException {
+    public ResponseEntity<StreamingResponseBody> generate(@PathVariable("studentData") String studentData) {
         if (studentData == null || studentData.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter valid data");
         } else if (studentData.length() > 100) {
@@ -43,7 +43,7 @@ public class AppController {
 
         StreamingResponseBody body = outputStream -> {
             try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(outputStream))) {
-                ImplementationBatch impls = Generator.generateInMemory(1000,
+                ImplementationBatch impls = Generator.generateWebApi(1000,
                         "src/main/java/org/example/Engine.java",
                         "src/main/java/org/example/impl");
 
@@ -74,7 +74,7 @@ public class AppController {
     @GetMapping("/check/{studentData}/{implNum}")
     public ResponseEntity<String> check(
             @PathVariable("studentData") String studentData,
-            @PathVariable("implNum") String implNum) throws IOException {
+            @PathVariable("implNum") String implNum) {
         if (studentData == null || studentData.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter valid data");
         } else if (studentData.length() > 100) {
@@ -95,18 +95,18 @@ public class AppController {
     }
 
     @GetMapping("/all/active/admin")
-    public ResponseEntity<List<Student>> allActiveAdmin() throws IOException {
+    public ResponseEntity<List<Student>> allActiveAdmin()  {
         List<Student> studentsInfo = studentService.findAllActive();
         return ResponseEntity.ok().body(studentsInfo);
     }
 
     @GetMapping("/all/admin")
-    public ResponseEntity<List<Student>> allAdmin() throws IOException {
+    public ResponseEntity<List<Student>> allAdmin()  {
         return ResponseEntity.ok().body(studentService.findAll());
     }
 
     @GetMapping("/all/solved/admin")
-    public ResponseEntity<List<Student>> solved() throws IOException {
+    public ResponseEntity<List<Student>> solved()  {
         List<Student> studentsInfo = studentService.findSolved();
         return ResponseEntity.ok().body(studentsInfo);
     }
