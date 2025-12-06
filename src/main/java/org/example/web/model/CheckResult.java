@@ -18,6 +18,14 @@ public class CheckResult {
         return isCorrect;
     }
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public void setCorrect(boolean correct) {
         isCorrect = correct;
     }
