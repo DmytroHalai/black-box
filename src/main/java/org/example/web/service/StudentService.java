@@ -5,8 +5,12 @@ import org.example.web.model.Student;
 import org.example.web.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StudentService {
@@ -14,6 +18,10 @@ public class StudentService {
 
     public StudentService(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
+    }
+
+    private static boolean isStrangeCheck(LocalDateTime prev, LocalDateTime next, int diffSeconds) {
+        return Math.abs(ChronoUnit.SECONDS.between(prev, next)) <= diffSeconds;
     }
 
     public Student findByName(String studentName) {
@@ -64,5 +72,27 @@ public class StudentService {
 
     public List<Student> findAll() {
         return studentRepository.getStudents();
+    }
+
+    public Map<Integer, List<String>> findStrangeChecks() {
+        Map<Integer, List<String>> strangeChecksStudentsList = new HashMap<>();
+        List<Student> students = findAllActive();
+        for (Student student : students) {
+            List<CheckResult> checkResults = student.getCheckResults();
+            LocalDateTime firstCheck = checkResults.getFirst().getTimestamp();
+            LocalDateTime lastCheck = checkResults.getLast().getTimestamp();
+            int strangerCount = 0;
+            if (isStrangeCheck(firstCheck, lastCheck, 5)) strangerCount++;
+            for (int i = 1; i < checkResults.size(); i++) {
+                LocalDateTime prev = checkResults.get(i - 1).getTimestamp();
+                LocalDateTime next = checkResults.get(i).getTimestamp();
+                if (isStrangeCheck(prev, next, 3)) strangerCount++;
+            }
+            if (strangerCount >= 5)
+                strangeChecksStudentsList
+                        .computeIfAbsent(strangerCount, k -> new ArrayList<>())
+                        .add(student.getName());
+        }
+        return strangeChecksStudentsList;
     }
 }

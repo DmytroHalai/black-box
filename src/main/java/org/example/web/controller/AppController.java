@@ -17,9 +17,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -95,19 +95,42 @@ public class AppController {
     }
 
     @GetMapping("/all/active/admin")
-    public ResponseEntity<List<Student>> allActiveAdmin()  {
+    public ResponseEntity<List<Student>> allActiveAdmin() {
         List<Student> studentsInfo = studentService.findAllActive();
         return ResponseEntity.ok().body(studentsInfo);
     }
 
     @GetMapping("/all/admin")
-    public ResponseEntity<List<Student>> allAdmin()  {
+    public ResponseEntity<List<Student>> allAdmin() {
         return ResponseEntity.ok().body(studentService.findAll());
     }
 
     @GetMapping("/all/solved/admin")
-    public ResponseEntity<List<Student>> solved()  {
+    public ResponseEntity<List<Student>> solved() {
         List<Student> studentsInfo = studentService.findSolved();
         return ResponseEntity.ok().body(studentsInfo);
+    }
+
+    @GetMapping("/all/strange-checks/admin")
+    public ResponseEntity<List<String>> strangeChecks() {
+        Map<Integer, List<String>> students = studentService.findStrangeChecks();
+
+        List<String> response = students.entrySet().stream()
+                .map(entry -> {
+                    String names = String.join(", ", entry.getValue());
+                    return entry.getKey() + " - " + names;
+                })
+                .toList();
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("all/get/{studentData}")
+    public ResponseEntity<Student> getStudent(@PathVariable("studentData") String studentData) {
+        if (studentData == null || studentData.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter valid data");
+        }
+        Student studentInfo = studentService.findByName(studentData);
+        return ResponseEntity.ok().body(studentInfo);
     }
 }
